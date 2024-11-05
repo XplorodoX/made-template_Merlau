@@ -1,36 +1,50 @@
-pipeline TreesPipeline {
+pipeline BaumdatenPipeline {
     DataExtractor
-        ->TreesTextFileInterpreter
-        ->TreesCSVInterpreter
-        ->TreesTableInterpreter
+        ->BaumdatenTextFileInterpreter
+        ->BaumdatenCSVInterpreter
+        ->BaumdatenTableInterpreter
         ->DatabaseLoader;
 
-    block DataExtractor oftype HttpExtractor {
-        url: "https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/stadt-neuss-herbstpflanzung-2023/exports/csv";
+    block DataExtractor oftype HttpExtractor { 
+        url: "https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/stadt-neuss-herbstpflanzung-2023/exports/csv"; 
     }
 
-    block TreesTextFileInterpreter oftype TextFileInterpreter {}
+    block BaumdatenTextFileInterpreter oftype TextFileInterpreter {}
 
-
-    block TreesCSVInterpreter oftype CSVInterpreter {
+    block BaumdatenCSVInterpreter oftype CSVInterpreter {
         delimiter: ';';
     }
 
-    block TreesTableInterpreter oftype TableInterpreter {
-    header: true;
-    columns: [
-        "Lfd_Nr" oftype integer,
-        "Stadtteil" oftype text,
-        "Standort" oftype text,
-        "Baumart_botanisch" oftype text,
-        "Baumart_deutsch" oftype text,
-        "Geopunkt" oftype decimal,
-        "Baumfamilie" oftype text
-    ];
+    block BaumdatenTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "lfd_nr" oftype integer,
+            "stadtteil" oftype TextVogel,
+            "standort" oftype text,
+            "baumart_botanisch" oftype text,
+            "id" oftype geopointnew,
+            "baumfamilie" oftype text
+        ];
     }
 
     block DatabaseLoader oftype SQLiteLoader {
-    table: "trees";
-    file: "trees.sqlite";
+        table: "baeume";
+        file: "baeume.sqlite";
     }
 }
+
+valuetype TextVogel oftype text {
+  constraints: [
+    containsVogelsang
+  ];
+}
+
+valuetype geopointnew oftype text {
+  constraints: [
+    validGeoPoint
+  ];
+}
+
+constraint containsVogelsang on text: value matches /Vogelsang/;
+
+constraint validGeoPoint on text: value matches /^[0-9]{1,3}\.[0-9]+,\s[0-9]{1,3}\.[0-9]+$/;
