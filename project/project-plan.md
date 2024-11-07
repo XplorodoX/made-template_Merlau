@@ -1,35 +1,49 @@
 # Project Plan
 
 ## Title
-<!-- Give your project a short title. -->
-Awesome MADE project.
+Analysis of CO₂ Emissions in the Americas Over the Past Two Decades
 
 ## Main Question
 
-<!-- Think about one main question you want to answer based on the data. -->
-1. Does writing an example question help students write better project plans?
+1. How have CO₂ emissions changed over the last two decades in North and South America, and which countries are contributing the most to these changes?
 
 ## Description
 
-<!-- Describe your data science project in max. 200 words. Consider writing about why and how you attempt it. -->
-XY is an important problem, because... This projects analyzes XY, using method A. The results can give insights into...
+Understanding the trends and contributors to CO₂ emissions in the Americas is crucial for developing effective climate policies. This project aims to analyze the changes in CO₂ emissions in North and South America over the past 20 years, identifying key contributing countries and sectors. By utilizing data from reputable sources, the study will provide insights into emission patterns and inform strategies for emission reduction.
 
 ## Datasources
 
-<!-- Describe each datasources you plan to use in a section. Use the prefic "DatasourceX" where X is the id of the datasource. -->
-
-### Datasource1: ExampleSource
-* Metadata URL: https://mobilithek.info/offers/-6901989592576801458
-* Data URL: https://raw.githubusercontent.com/od-ms/radverkehr-zaehlstellen/main/100035541/2019-01.csv
+### Datasource1: Our World in Data
+* Metadata URL: [CO₂ Emissions](https://ourworldindata.org/co2-emissions)
+* Data URL: [Annual CO₂ Emissions by World Region](https://ourworldindata.org/grapher/annual-co-emissions-by-region)
 * Data Type: CSV
 
-Short description of the DataSource.
+This dataset provides comprehensive information on annual CO₂ emissions by world region, including detailed data for North and South America.
 
 ## Work Packages
 
-<!-- List of work packages ordered sequentially, each pointing to an issue with more details. -->
+1. **Data Collection and Preparation** [#1][i1]
+   - Gather datasets from Our World in Data and the IEA.
+   - Clean and preprocess data for analysis.
 
-1. Example Issue [#1][i1]
-2. ...
+2. **Exploratory Data Analysis (EDA)** [#2][i2]
+   - Perform statistical analysis to understand data distributions.
+   - Identify patterns and anomalies in the datasets.
 
-[i1]: https://github.com/jvalue/made-template/issues/1
+3. **Data Visualization** [#3][i3]
+   - Create visual representations (e.g., charts, graphs) to illustrate CO₂ emission trends.
+   - Develop interactive dashboards for dynamic data exploration.
+
+4. **Trend Analysis** [#4][i4]
+   - Analyze temporal trends in CO₂ emissions across countries in North and South America.
+   - Identify significant changes and potential causes.
+
+5. **Reporting and Documentation** [#5][i5]
+   - Compile findings into a comprehensive report.
+   - Document methodologies, insights, and recommendations.
+
+[i1]: https://github.com/your-repository/issues/1
+[i2]: https://github.com/your-repository/issues/2
+[i3]: https://github.com/your-repository/issues/3
+[i4]: https://github.com/your-repository/issues/4
+[i5]: https://github.com/your-repository/issues/5
