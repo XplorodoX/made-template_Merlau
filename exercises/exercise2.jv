@@ -28,8 +28,8 @@ pipeline BaumdatenPipeline {
     }
 
     block DatabaseLoader oftype SQLiteLoader {
-        table: "baeume";
-        file: "baeume.sqlite";
+        table: "trees";
+        file: "trees.sqlite";
     }
 }
 
