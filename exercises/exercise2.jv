@@ -1,50 +1,67 @@
 pipeline BaumdatenPipeline {
+    // Define the data pipeline "BaumdatenPipeline", which uses various data processing blocks
+    // to extract, interpret, and load tree data into an SQLite database.
     DataExtractor
         ->BaumdatenTextFileInterpreter
         ->BaumdatenCSVInterpreter
         ->BaumdatenTableInterpreter
         ->DatabaseLoader;
 
+    // Block to extract data from a URL containing the CSV data for autumn planting.
     block DataExtractor oftype HttpExtractor { 
         url: "https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/stadt-neuss-herbstpflanzung-2023/exports/csv"; 
     }
 
+    // Block to interpret the data as a text file (a general step before further processing).
     block BaumdatenTextFileInterpreter oftype TextFileInterpreter {}
 
+    // Block to interpret the text file as a CSV file. The delimiter is set here (in this case, ';').
     block BaumdatenCSVInterpreter oftype CSVInterpreter {
         delimiter: ';';
     }
 
+    // Block to interpret the CSV data as a table. It is specified that the CSV file has a header (header: true).
+    // Additionally, the column names and their data types are defined.
     block BaumdatenTableInterpreter oftype TableInterpreter {
         header: true;
         columns: [
-            "lfd_nr" oftype integer,
-            "stadtteil" oftype TextVogel,
-            "standort" oftype text,
-            "baumart_botanisch" oftype text,
-            "id" oftype geopointnew,
-            "baumfamilie" oftype text
+            "lfd_nr" oftype integer,                      // Serial number, data type: integer
+            "stadtteil" oftype TextVogel,                 // District, custom data type with constraint "TextVogel"
+            "standort" oftype text,                       // Location, data type: text
+            "baumart_botanisch" oftype text,             // Botanical name of the tree species, data type: text
+            "id" oftype geopointnew,                      // ID with geocoordinates, custom data type "geopointnew"
+            "baumfamilie" oftype text                    // Tree family, data type: text
         ];
     }
 
+    // Block to load the processed data into an SQLite database.
+    // The table is named "trees" and the database file is called "trees.sqlite".
     block DatabaseLoader oftype SQLiteLoader {
         table: "trees";
         file: "trees.sqlite";
     }
 }
 
+// Definition of a custom data type "TextVogel" based on the type "text".
+// A constraint is added to ensure that the text contains the word "Vogelsang".
 valuetype TextVogel oftype text {
   constraints: [
     containsVogelsang
   ];
 }
 
+// Definition of a custom data type "geopointnew" based on the type "text".
+// This data type must have a valid format for geopoints (latitude, longitude).
 valuetype geopointnew oftype text {
   constraints: [
     validGeoPoint
   ];
 }
 
+// Constraint for the data type "TextVogel".
+// The condition ensures that the text contains the term "Vogelsang".
 constraint containsVogelsang on text: value matches /Vogelsang/;
 
+// Constraint for the data type "geopointnew".
+// The condition ensures that the text is in the format of geocoordinates (e.g., "50.1234, 6.5678").
 constraint validGeoPoint on text: value matches /^[0-9]{1,3}\.[0-9]+,\s[0-9]{1,3}\.[0-9]+$/;
