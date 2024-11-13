@@ -5,3 +5,6 @@
 made-template_Merlau.code-workspace
 exercises/trees.sqlite
 *.sqlite
+/project/data/*
+
+/project/main.ipynb
