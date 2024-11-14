@@ -13,12 +13,19 @@ Understanding the trends and contributors to CO₂ emissions in the Americas is 
 
 ## Datasources
 
-### Datasource1: Our World in Data
-* Metadata URL: [CO₂ Emissions](https://ourworldindata.org/co2-emissions)
-* Data URL: [Annual CO₂ Emissions by World Region](https://ourworldindata.org/grapher/annual-co-emissions-by-region)
-* Data Type: CSV
+### Datasource1: World Development Indicators
+- **Metadata URL:** [World Development Indicators](https://datacatalog.worldbank.org/search/dataset/0037712)
+- **Data URL:** [World Development Indicators](https://datacatalog.worldbank.org/search/dataset/0037712)
+- **Data Format:** CSV, Excel
 
-This dataset provides comprehensive information on annual CO₂ emissions by world region, including detailed data for North and South America.
+**Description:**
+The WDI dataset is compiled by the World Bank from officially recognized international sources. It provides a wide array of indicators, including CO₂ emissions, which are valuable for analyzing emission trends in North and South America over the past two decades. The data is disaggregated by country and year, facilitating detailed examination.
+
+**Licensing:**
+The data is available under the [Creative Commons Attribution 4.0 International License (CC-BY 4.0)](https://datacatalog.worldbank.org/public-licenses), permitting copying, modification, and distribution, provided appropriate credit is given. 
+
+**Integration into the Project:**
+This dataset complements the already planned data sources, offering additional perspectives and validation opportunities for analyzing CO₂ emissions in the Americas. It is recommended to combine the data from the WDI dataset with existing data to ensure a more comprehensive and robust analysis. 
 
 ## Work Packages
 
