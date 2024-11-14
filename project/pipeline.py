@@ -1,64 +1,39 @@
+import sqlite3
 import requests
 import zipfile
 import io
 import pandas as pd
 
-# URL der ZIP-Datei
+# URL of the ZIP file
 url = 'https://datacatalogfiles.worldbank.org/ddh-published/0037712/DR0045575/WDI_CSV_2024_10_24.zip?versionId=2024-10-28T13:09:29.1647687Z'
 
-# Herunterladen der ZIP-Datei
+# Download the ZIP file
 response = requests.get(url)
 if response.status_code == 200:
-    # Entpacken der ZIP-Datei
+    # Extract the ZIP file
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-        # Auflisten der enthaltenen Dateien
-        file_list = z.namelist()
-        print("Enthaltene Dateien:", file_list)
-        
-        # Laden der CSV-Dateien in Pandas DataFrames
-        dataframes = {}
-        for file_name in file_list:
-            if file_name.endswith('.csv'):
-                with z.open(file_name) as f:
-                    df = pd.read_csv(f)
-                    dataframes[file_name] = df
-                    print(f"Datei '{file_name}' erfolgreich geladen.")
+        # Load the relevant CSV files into Pandas DataFrames
+        with z.open('WDICSV.csv') as f:
+            df = pd.read_csv(f)
+        with z.open('WDICountry.csv') as f:
+            supdata = pd.read_csv(f)
 else:
-    print(f"Fehler beim Herunterladen der Datei. Statuscode: {response.status_code}")
+    print(f"Error downloading the file. Status code: {response.status_code}")
 
-# Daten abrufen
-df = pd.read_csv("https://ourworldindata.org/grapher/annual-co-emissions-by-region.csv?v=1&csvType=full&useColumnShortNames=false")
+# Step 1: Identify aggregated entries
+aggregated_country_codes = supdata[supdata['Currency Unit'].isna()]['Country Code'].unique()
 
-# Metadaten abrufen
-metadata = requests.get("https://ourworldindata.org/grapher/annual-co-emissions-by-region.metadata.json?v=1&csvType=full&useColumnShortNames=false").json()
+# Step 2: Remove aggregated data from df
+filtered_data = df[~df['Country Code'].isin(aggregated_country_codes)]
 
-# Fehlende Werte entfernen
-df_cleaned = df.dropna()
+# Optional: Reset the index
+filtered_data.reset_index(drop=True, inplace=True)
 
-# Spaltentypen prüfen und ggf. konvertieren
-print("Spaltentypen vor Konvertierung:")
-print(df_cleaned.dtypes)
+# Establish a connection to the SQLite database (or create a new one)
+conn = sqlite3.connect('data/cleaned_data.db')
 
-# Beispiel: Konvertierung der "Jahr"-Spalte in Ganzzahl, falls diese nicht bereits Integer ist
-if 'Jahr' in df_cleaned.columns and df_cleaned['Jahr'].dtype != 'int64':
-    df_cleaned['Jahr'] = pd.to_numeric(df_cleaned['Jahr'], errors='coerce').fillna(0).astype(int)
+# Write the cleaned DataFrame to the SQLite database
+filtered_data.to_sql('cleaned_data', conn, if_exists='replace', index=False)
 
-# Sicherstellen, dass der Ordner für die Datenbank existiert
-db_path = 'project/data/cleaned_data.db'
-os.makedirs(os.path.dirname(db_path), exist_ok=True)
-
-# Verbindung zur SQLite-Datenbank herstellen
-conn = sqlite3.connect(db_path)
-
-# Bereinigtes DataFrame in die SQLite-Datenbank schreiben
-df_cleaned.to_sql('cleaned_data', conn, if_exists='replace', index=False)
-
-# Gespeicherte Daten abfragen und Datentypen prüfen
-df_from_db = pd.read_sql('SELECT * FROM cleaned_data LIMIT 5', conn)
-print("Spaltentypen nach Laden in die Datenbank:")
-print(df_from_db.dtypes)
-
-# Verbindung schließen
+# Close the connection
 conn.close()
-
-
