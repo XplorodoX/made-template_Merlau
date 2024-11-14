@@ -13,7 +13,7 @@ Understanding the trends and contributors to CO₂ emissions in the Americas is 
 
 ## Datasources
 
-### Datasource1: World Development Indicators
+### Datasource: World Development Indicators
 - **Metadata URL:** [World Development Indicators](https://datacatalog.worldbank.org/search/dataset/0037712)
 - **Data URL:** [World Development Indicators](https://datacatalog.worldbank.org/search/dataset/0037712)
 - **Data Format:** CSV, Excel
