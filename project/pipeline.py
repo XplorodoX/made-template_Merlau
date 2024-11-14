@@ -26,7 +26,7 @@ aggregated_country_codes = supdata[supdata['Currency Unit'].isna()]['Country Cod
 # Step 2: Remove aggregated data from df
 filtered_data = df[~df['Country Code'].isin(aggregated_country_codes)]
 
-# Optional: Reset the index
+# Reset the index
 filtered_data.reset_index(drop=True, inplace=True)
 
 # Establish a connection to the SQLite database (or create a new one)
