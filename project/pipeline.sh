@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Erstellen Sie das benötigte Verzeichnis
+# Create the required directory
 mkdir -p project/data
 
-# Installieren Sie die erforderlichen Python-Pakete
+# Install the necessary Python packages
 pip install pandas requests
 
-# Führen Sie das Python-Skript aus
+# Run the Python script
 python pipeline.py
