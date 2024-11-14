@@ -35,7 +35,7 @@ filtered_data = df[~df['Country Code'].isin(aggregated_country_codes)]
 filtered_data.reset_index(drop=True, inplace=True)
 
 # Establish a connection to the SQLite database (or create a new one)
-conn = sqlite3.connect('project/data/cleaned_data.db')
+conn = sqlite3.connect('data/cleaned_data.db')
 
 # Write the cleaned DataFrame to the SQLite database
 filtered_data.to_sql('cleaned_data', conn, if_exists='replace', index=False)
