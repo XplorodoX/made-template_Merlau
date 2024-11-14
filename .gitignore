@@ -8,3 +8,5 @@ exercises/trees.sqlite
 /project/data/*
 
 /project/main.ipynb
+
+project/project/*

@@ -3,6 +3,11 @@ import requests
 import zipfile
 import io
 import pandas as pd
+import os
+
+db_path = os.path.join(os.path.dirname(__file__), 'project/data/cleaned_data.db')
+conn = sqlite3.connect(db_path)
+
 
 # URL of the ZIP file
 url = 'https://datacatalogfiles.worldbank.org/ddh-published/0037712/DR0045575/WDI_CSV_2024_10_24.zip?versionId=2024-10-28T13:09:29.1647687Z'
@@ -30,7 +35,7 @@ filtered_data = df[~df['Country Code'].isin(aggregated_country_codes)]
 filtered_data.reset_index(drop=True, inplace=True)
 
 # Establish a connection to the SQLite database (or create a new one)
-conn = sqlite3.connect('data/cleaned_data.db')
+conn = sqlite3.connect('project/data/cleaned_data.db')
 
 # Write the cleaned DataFrame to the SQLite database
 filtered_data.to_sql('cleaned_data', conn, if_exists='replace', index=False)
