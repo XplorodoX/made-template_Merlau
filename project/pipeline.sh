@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Create the required directory
-mkdir -p project/data
+# Navigate to the directory containing the Bash script
+cd "$(dirname "$0")"
 
 # Install the necessary Python packages
 pip install pandas requests
