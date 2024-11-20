@@ -1,0 +1,50 @@
+pipeline GovermentPipeline {
+
+  DataExtractor
+    ->GovermentCellsTextXLSXInterpreter
+    ->GovermentCellsSheetpicker
+    ->NameHeaderWriter
+    ->NewHeaderWriter
+    ->GovermentCoreDataSelector
+    ->GovermentTableInterpreter
+    ->DatabaseLoader;
+
+  block DataExtractor oftype HttpExtractor {
+    url: "https://thedocs.worldbank.org/en/doc/7d852628d96b9411d43e5d36d5dff941-0050062022/original/Graphs-Chapter-5-02082022.xlsx";
+  }
+
+  block GovermentCellsTextXLSXInterpreter oftype XLSXInterpreter { }
+
+  block GovermentCellsSheetpicker oftype SheetPicker {
+    sheetName: 'Figure S5.1.2';
+  }
+
+  block NameHeaderWriter oftype CellWriter {
+   at: cell P2;
+   write: ["Country Code"];
+ }
+
+  block NewHeaderWriter oftype CellWriter {
+   at: range R2:S2;
+   write: ["GDP per Capita", "Bond Issuance Share"];
+ }
+
+  block GovermentCoreDataSelector oftype CellRangeSelector {
+    select: range P2:S45;
+  }
+
+  block GovermentTableInterpreter oftype TableInterpreter {
+   header: true;
+   columns: [
+     "Country Code" oftype text,
+     "Economy" oftype text,
+     "GDP per Capita" oftype decimal,
+     "Bond Issuance Share" oftype decimal
+   ];
+ }
+  
+  block DatabaseLoader oftype SQLiteLoader {
+    table: "bondIssuance";
+    file: "country-stats.sqlite";
+  }
+}
