@@ -36,15 +36,49 @@ pipeline GovermentPipeline {
   block GovermentTableInterpreter oftype TableInterpreter {
    header: true;
    columns: [
-     "Country Code" oftype text,
+     "Country Code" oftype CountryCode,
      "Economy" oftype text,
-     "GDP per Capita" oftype decimal,
-     "Bond Issuance Share" oftype decimal
+     "GDP per Capita" oftype GDPCapita,
+     "Bond Issuance Share" oftype BondIssuanceShare
    ];
  }
+
+ 
   
   block DatabaseLoader oftype SQLiteLoader {
     table: "bondIssuance";
     file: "country-stats.sqlite";
   }
+}
+
+//"GDP per Capita" must be a positive decimal (must not be empty)
+valuetype GDPCapita oftype decimal {
+  constraints: [
+    CheckPositive
+  ];
+}
+
+publish constraint CheckPositive oftype RangeConstraint {
+  lowerBound: 0;
+}
+
+valuetype CountryCode oftype text {
+  constraints: [
+    CheckUpperCase
+  ];
+}
+
+publish constraint CheckUpperCase oftype RegexConstraint {
+  regex: /^[A-Z]{3}$/;
+}
+
+valuetype BondIssuanceShare oftype decimal {
+  constraints: [
+    CheckBetweenZeroAndOne
+  ];
+}
+
+publish constraint CheckBetweenZeroAndOne oftype RangeConstraint {
+  lowerBound: 0;
+  upperBound: 1;
 }
