@@ -1,156 +1,130 @@
-// The pipeline defines a workflow for extracting, processing, and storing government-related data.
-// Improved naming conventions are applied to enhance clarity and consistency.
+pipeline GovermentPipeline {
 
-pipeline GovernmentDataPipeline {
-
-  // Data extraction and processing for the first dataset
   DataExtractor
-    -> GovernmentTextInterpreter
-    -> GovernmentSheetPicker
-    -> CountryCodeHeaderWriter
-    -> GDPAndBondHeaderWriter
-    -> CoreDataSelector
-    -> GovernmentDataInterpreter
-    -> GDPDataLoader;
+    ->GovermentCellsTextXLSXInterpreter
+    ->GovermentCellsSheetpicker
+    ->NameHeaderWriter
+    ->NewHeaderWriter
+    ->GovermentCoreDataSelector
+    ->GovermentTableInterpreter
+    ->DatabaseLoader;
 
-  // Data extraction and processing for the second dataset
   Data2Extractor
-    -> Government2TextInterpreter
-    -> Government2SheetPicker
-    -> CountryCodeHeaderWriter2
-    -> GDPAndBondHeaderWriter2
-    -> CoreDataSelector2
-    -> Government2DataInterpreter
-    -> BondDataLoader;
+    ->Goverment2CellsTextXLSXInterpreter
+    ->Goverment2CellsSheetpicker
+    ->Name2HeaderWriter
+    ->NewHeader2Writer
+    ->Goverment2CoreDataSelector
+    ->Goverment2TableInterpreter
+    ->LoaderA;
 
-  // HTTP extractor to fetch the first dataset from a given URL
   block DataExtractor oftype HttpExtractor {
     url: "https://thedocs.worldbank.org/en/doc/7d852628d96b9411d43e5d36d5dff941-0050062022/original/Graphs-Chapter-5-02082022.xlsx";
   }
 
-  // HTTP extractor to fetch the second dataset from a given URL
   block Data2Extractor oftype HttpExtractor {
     url: "https://thedocs.worldbank.org/en/doc/7d852628d96b9411d43e5d36d5dff941-0050062022/original/Graphs-Chapter-5-02082022.xlsx";
   }
 
-  // Interprets the first dataset as an XLSX file
-  block GovernmentTextInterpreter oftype XLSXInterpreter { }
+  block GovermentCellsTextXLSXInterpreter oftype XLSXInterpreter { }
+  block Goverment2CellsTextXLSXInterpreter oftype XLSXInterpreter { }
 
-  // Interprets the second dataset as an XLSX file
-  block Government2TextInterpreter oftype XLSXInterpreter { }
-
-  // Selects a specific sheet from the first dataset
-  block GovernmentSheetPicker oftype SheetPicker {
+  block GovermentCellsSheetpicker oftype SheetPicker {
     sheetName: 'Figure S5.1.2';
   }
 
-  // Selects a specific sheet from the second dataset
-  block Government2SheetPicker oftype SheetPicker {
+    block Goverment2CellsSheetpicker oftype SheetPicker {
     sheetName: 'Figure S5.1.2';
   }
 
-  // Writes the "Country Code" header to a specific cell for the first dataset
-  block CountryCodeHeaderWriter oftype CellWriter {
-    at: cell P2;
-    write: ["Country Code"];
+  block NameHeaderWriter oftype CellWriter {
+   at: cell P2;
+   write: ["Country Code"];
   }
 
-  // Writes the "Country Code" header to a specific cell for the second dataset
-  block CountryCodeHeaderWriter2 oftype CellWriter {
-    at: cell P2;
-    write: ["Country Code"];
+    block Name2HeaderWriter oftype CellWriter {
+   at: cell P2;
+   write: ["Country Code"];
   }
 
-  // Writes headers for GDP per capita and bond issuance share for the first dataset
-  block GDPAndBondHeaderWriter oftype CellWriter {
-    at: range R2:S2;
-    write: ["GDP per Capita", "Bond Issuance Share"];
+  block NewHeaderWriter oftype CellWriter {
+   at: range R2:S2;
+   write: ["GDP per Capita", "Bond Issuance Share"];
   }
 
-  // Writes headers for GDP per capita and bond issuance share for the second dataset
-  block GDPAndBondHeaderWriter2 oftype CellWriter {
-    at: range R2:S2;
-    write: ["GDP per Capita", "Bond Issuance Share"];
+  block NewHeader2Writer oftype CellWriter {
+   at: range R2:S2;
+   write: ["GDP per Capita", "Bond Issuance Share"];
   }
 
-  // Selects the data range containing core information from the first dataset
-  block CoreDataSelector oftype CellRangeSelector {
+  block GovermentCoreDataSelector oftype CellRangeSelector {
     select: range P2:S45;
   }
 
-  // Selects the data range containing core information from the second dataset
-  block CoreDataSelector2 oftype CellRangeSelector {
+  block Goverment2CoreDataSelector oftype CellRangeSelector {
     select: range P2:S45;
   }
 
-  // Interprets the first dataset's table structure with specified columns
-  block GovernmentDataInterpreter oftype TableInterpreter {
-    header: true;
-    columns: [
-      "Country Code" oftype CountryCode,
-      "GDP per Capita" oftype GDPCapita
-    ];
-  }
+// Table interpreter
+  block GovermentTableInterpreter oftype TableInterpreter {
+   header: true;
+   columns: [
+     "Country Code" oftype CountryCode,
+     "GDP per Capita" oftype GDPCapita
+   ];
+ }
 
-  // Interprets the second dataset's table structure with specified columns
-  block Government2DataInterpreter oftype TableInterpreter {
-    header: true;
-    columns: [
-      "Country Code" oftype CountryCode,
-      "Bond Issuance Share" oftype BondIssuanceShare
-    ];
-  }
+ // Table interpreter
+  block Goverment2TableInterpreter oftype TableInterpreter {
+   header: true;
+   columns: [
+     "Country Code" oftype CountryCode,
+     "Bond Issuance Share" oftype BondIssuanceShare
+   ];
+ }
 
-  // Loads the first dataset into a SQLite database table for GDP per capita
-  block GDPDataLoader oftype SQLiteLoader {
-    table: "GDPPerCapita";
+ // Database loader
+  block DatabaseLoader oftype SQLiteLoader {
+    table: "gdpPerCapita";
     file: "country-stats.sqlite";
     dropTable: false;
   }
-
-  // Loads the second dataset into a SQLite database table for bond issuance share
-  block BondDataLoader oftype SQLiteLoader {
-    table: "BondIssuanceShare";
+  // Database loader
+  block LoaderA oftype SQLiteLoader {
+    table: "bondIssuance";
     file: "country-stats.sqlite";
     dropTable: false;
   }
 }
 
-// Constraints for value types to ensure data consistency and validation
-
-// GDP per Capita should be a positive decimal value
+// Constraints for the data types
 valuetype GDPCapita oftype decimal {
   constraints: [
-    PositiveValue
+    CheckPositive
   ];
 }
 
-// Constraint to ensure a positive decimal value
-publish constraint PositiveValue oftype RangeConstraint {
+publish constraint CheckPositive oftype RangeConstraint {
   lowerBound: 0;
 }
 
-// Country Code should be a three-letter uppercase text
 valuetype CountryCode oftype text {
   constraints: [
-    UpperCaseFormat
+    CheckUpperCase
   ];
 }
 
-// Constraint to ensure text is in uppercase and matches the required format
-publish constraint UpperCaseFormat oftype RegexConstraint {
+publish constraint CheckUpperCase oftype RegexConstraint {
   regex: /^[A-Z]{3}$/;
 }
 
-// Bond Issuance Share should be a decimal value between 0 and 1
 valuetype BondIssuanceShare oftype decimal {
   constraints: [
-    RangeZeroToOne
+    CheckBetweenZeroAndOne
   ];
 }
 
-// Constraint to ensure the value is within the range [0, 1]
-publish constraint RangeZeroToOne oftype RangeConstraint {
+publish constraint CheckBetweenZeroAndOne oftype RangeConstraint {
   lowerBound: 0;
   upperBound: 1;
 }
