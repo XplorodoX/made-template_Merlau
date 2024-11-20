@@ -9,49 +9,95 @@ pipeline GovermentPipeline {
     ->GovermentTableInterpreter
     ->DatabaseLoader;
 
+  Data2Extractor
+    ->Goverment2CellsTextXLSXInterpreter
+    ->Goverment2CellsSheetpicker
+    ->Name2HeaderWriter
+    ->NewHeader2Writer
+    ->Goverment2CoreDataSelector
+    ->Goverment2TableInterpreter
+    ->LoaderA;
+
   block DataExtractor oftype HttpExtractor {
     url: "https://thedocs.worldbank.org/en/doc/7d852628d96b9411d43e5d36d5dff941-0050062022/original/Graphs-Chapter-5-02082022.xlsx";
   }
 
+  block Data2Extractor oftype HttpExtractor {
+    url: "https://thedocs.worldbank.org/en/doc/7d852628d96b9411d43e5d36d5dff941-0050062022/original/Graphs-Chapter-5-02082022.xlsx";
+  }
+
   block GovermentCellsTextXLSXInterpreter oftype XLSXInterpreter { }
+  block Goverment2CellsTextXLSXInterpreter oftype XLSXInterpreter { }
 
   block GovermentCellsSheetpicker oftype SheetPicker {
+    sheetName: 'Figure S5.1.2';
+  }
+
+    block Goverment2CellsSheetpicker oftype SheetPicker {
     sheetName: 'Figure S5.1.2';
   }
 
   block NameHeaderWriter oftype CellWriter {
    at: cell P2;
    write: ["Country Code"];
- }
+  }
+
+    block Name2HeaderWriter oftype CellWriter {
+   at: cell P2;
+   write: ["Country Code"];
+  }
 
   block NewHeaderWriter oftype CellWriter {
    at: range R2:S2;
    write: ["GDP per Capita", "Bond Issuance Share"];
- }
+  }
+
+  block NewHeader2Writer oftype CellWriter {
+   at: range R2:S2;
+   write: ["GDP per Capita", "Bond Issuance Share"];
+  }
 
   block GovermentCoreDataSelector oftype CellRangeSelector {
     select: range P2:S45;
   }
 
+  block Goverment2CoreDataSelector oftype CellRangeSelector {
+    select: range P2:S45;
+  }
+
+// Table interpreter
   block GovermentTableInterpreter oftype TableInterpreter {
    header: true;
    columns: [
      "Country Code" oftype CountryCode,
-     "Economy" oftype text,
-     "GDP per Capita" oftype GDPCapita,
+     "GDP per Capita" oftype GDPCapita
+   ];
+ }
+
+ // Table interpreter
+  block Goverment2TableInterpreter oftype TableInterpreter {
+   header: true;
+   columns: [
+     "Country Code" oftype CountryCode,
      "Bond Issuance Share" oftype BondIssuanceShare
    ];
  }
 
- 
-  
+ // Database loader
   block DatabaseLoader oftype SQLiteLoader {
+    table: "gdpPerCapita";
+    file: "country-stats.sqlite";
+    dropTable: false;
+  }
+  // Database loader
+  block LoaderA oftype SQLiteLoader {
     table: "bondIssuance";
     file: "country-stats.sqlite";
+    dropTable: false;
   }
 }
 
-//"GDP per Capita" must be a positive decimal (must not be empty)
+// Constraints for the data types
 valuetype GDPCapita oftype decimal {
   constraints: [
     CheckPositive
