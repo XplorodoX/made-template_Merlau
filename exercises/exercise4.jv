@@ -1,0 +1,45 @@
+pipeline TemperaturePipeline {
+
+  DataDowload
+    -> ZipArchiveInterpreter
+    -> AgencyFilePicker
+    -> FileTextInterpreter
+    -> TemperaturesCSVInterpreter
+    -> TemperaturesTableInterpreter
+    -> TemperaturesLoader;
+
+  block DataDowload oftype HttpExtractor {
+    url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+  }
+
+  block ZipArchiveInterpreter oftype ArchiveInterpreter {
+    archiveType: "zip";
+  }
+
+  block AgencyFilePicker oftype FilePicker {
+   path: "./data.csv";
+  }
+
+  block FileTextInterpreter oftype TextFileInterpreter {}
+
+  block TemperaturesCSVInterpreter oftype CSVInterpreter {
+      enclosing: ';';
+  }
+
+  block TemperaturesTableInterpreter oftype TableInterpreter {
+    header: true;
+    columns: [
+      "Geraet" oftype text,
+      "Hersteller" oftype text,
+      "Model" oftype text,
+      "Monat" oftype integer,
+      "Temperatur in °C (DWD)" oftype decimal,
+      "Batterietemperatur in °C" oftype decimal
+    ];
+  }
+
+  block TemperaturesLoader oftype SQLiteLoader {
+    table: "temperatures";
+    file: "./temperatures.sqlite";
+  }
+}
