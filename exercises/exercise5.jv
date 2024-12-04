@@ -1,0 +1,20 @@
+pipeline GFTSPipeline {
+
+
+    DownloadData
+        -> StopsInterpreter
+        -> LoadTemperaturesToDB;
+
+
+    block DownloadData oftype GTFSExtractor {
+        url: "https://gtfs.rhoenenergie-bus.de/GTFS.zip";
+    }
+
+    block StopsInterpreter oftype GTFSStopsInterpreter { }
+
+    block LoadTemperaturesToDB oftype SQLiteLoader {
+        table: "stops";
+        file: "./gtfs.sqlite";
+    }
+
+}
