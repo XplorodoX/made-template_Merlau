@@ -8,10 +8,9 @@ pipeline TemperaturePipeline {
     -> UpdateHeaders
     -> UpdateLastHeader
     -> InterpretTemperaturesTable
-    -> ConvertBatteryTempToKelvin
-    -> ConvertTempToKelvin
+    -> ConvertBatteryTempToFahrenheit
+    -> ConvertTempToFahrenheit
     -> LoadTemperaturesToDB;
-
 
   block DownloadData oftype HttpExtractor {
     url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
@@ -22,23 +21,23 @@ pipeline TemperaturePipeline {
   }
 
   block SelectAgencyFile oftype FilePicker {
-   path: "./data.csv";
+    path: "./data.csv";
   }
 
   block ParseFileText oftype TextFileInterpreter {}
 
   block InterpretTemperaturesCSV oftype CSVInterpreter {
-      delimiter: ';';
+    delimiter: ';';
   }
 
   block UpdateHeaders oftype CellWriter {
-      at: range A1:E1;
-      write: ["id", "producer", "model", "month", "temperature"];
+    at: range A1:E1;
+    write: ["id", "producer", "model", "month", "temperature"];
   }
 
   block UpdateLastHeader oftype CellWriter {
-      at: cell J1;
-      write: ["battery_temperature"];
+    at: cell J1;
+    write: ["battery_temperature"];
   }
 
   block InterpretTemperaturesTable oftype TableInterpreter {
@@ -53,24 +52,24 @@ pipeline TemperaturePipeline {
     ];
   }
 
-  block ConvertBatteryTempToKelvin oftype TableTransformer {
+  block ConvertBatteryTempToFahrenheit oftype TableTransformer {
     inputColumns: ["battery_temperature"];
     outputColumn: "battery_temperature";
     uses: CelsiusToFahrenheit;
   }
 
-  transform CelsiusToFahrenheit {
-    from tempCelsius oftype decimal;
-    to tempFahrenheit oftype decimal;
-
-    tempFahrenheit: (tempCelsius * 9/5) + 32;
-  }
-
-  block ConvertTempToKelvin oftype TableTransformer {
+  block ConvertTempToFahrenheit oftype TableTransformer {
     inputColumns: ["temperature"];
     outputColumn: "temperature";
     uses: CelsiusToFahrenheit;
   }
+
+  transform CelsiusToFahrenheit {
+  from tempCelsius oftype decimal;
+  to tempFahrenheit oftype decimal;
+
+  tempFahrenheit: (tempCelsius * 9/5) + 32;
+}
 
   block LoadTemperaturesToDB oftype SQLiteLoader {
     table: "temperatures";
