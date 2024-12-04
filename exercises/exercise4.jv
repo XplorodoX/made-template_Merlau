@@ -43,7 +43,7 @@ pipeline TemperaturePipeline {
   block InterpretTemperaturesTable oftype TableInterpreter {
     header: true;
     columns: [
-      "id" oftype text,
+      "id" oftype proofID,
       "producer" oftype text,
       "model" oftype text,
       "month" oftype integer,
@@ -51,6 +51,13 @@ pipeline TemperaturePipeline {
       "battery_temperature" oftype decimal
     ];
   }
+
+  valuetype proofID oftype integer {
+    constraints: [Constraint_ID];
+  }
+
+  constraint Constraint_ID on integer:
+    value > 0;
 
   block ConvertBatteryTempToFahrenheit oftype TableTransformer {
     inputColumns: ["battery_temperature"];
