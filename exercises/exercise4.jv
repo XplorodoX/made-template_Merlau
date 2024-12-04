@@ -5,8 +5,11 @@ pipeline TemperaturePipeline {
     -> AgencyFilePicker
     -> FileTextInterpreter
     -> TemperaturesCSVInterpreter
+    -> NameHeaders
+    -> NameLastHeader
     -> TemperaturesTableInterpreter
     -> TemperaturesLoader;
+
 
   block DataDowload oftype HttpExtractor {
     url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
@@ -23,18 +26,28 @@ pipeline TemperaturePipeline {
   block FileTextInterpreter oftype TextFileInterpreter {}
 
   block TemperaturesCSVInterpreter oftype CSVInterpreter {
-      enclosing: ';';
+      delimiter: ';';
+  }
+
+  block NameHeaders oftype CellWriter {
+      at: range A1:E1;
+      write: ["id", "producer","model", "month", "temperature"];
+  }
+
+  block NameLastHeader oftype CellWriter {
+      at: cell J1;
+      write: ["battery_temperature"];
   }
 
   block TemperaturesTableInterpreter oftype TableInterpreter {
     header: true;
     columns: [
-      "Geraet" oftype text,
-      "Hersteller" oftype text,
-      "Model" oftype text,
-      "Monat" oftype integer,
-      "Temperatur in °C (DWD)" oftype decimal,
-      "Batterietemperatur in °C" oftype decimal
+      "id" oftype text,
+      "producer" oftype text,
+      "model" oftype text,
+      "month" oftype integer,
+      "temperature" oftype decimal,
+      "battery_temperature" oftype decimal
     ];
   }
 
