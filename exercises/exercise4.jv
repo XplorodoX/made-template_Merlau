@@ -1,45 +1,47 @@
 pipeline TemperaturePipeline {
 
-  DataDowload
-    -> ZipArchiveInterpreter
-    -> AgencyFilePicker
-    -> FileTextInterpreter
-    -> TemperaturesCSVInterpreter
-    -> NameHeaders
-    -> NameLastHeader
-    -> TemperaturesTableInterpreter
-    -> TemperaturesLoader;
+  DownloadData
+    -> UnzipArchive
+    -> SelectAgencyFile
+    -> ParseFileText
+    -> InterpretTemperaturesCSV
+    -> UpdateHeaders
+    -> UpdateLastHeader
+    -> InterpretTemperaturesTable
+    -> ConvertBatteryTempToKelvin
+    -> ConvertTempToKelvin
+    -> LoadTemperaturesToDB;
 
 
-  block DataDowload oftype HttpExtractor {
+  block DownloadData oftype HttpExtractor {
     url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
   }
 
-  block ZipArchiveInterpreter oftype ArchiveInterpreter {
+  block UnzipArchive oftype ArchiveInterpreter {
     archiveType: "zip";
   }
 
-  block AgencyFilePicker oftype FilePicker {
+  block SelectAgencyFile oftype FilePicker {
    path: "./data.csv";
   }
 
-  block FileTextInterpreter oftype TextFileInterpreter {}
+  block ParseFileText oftype TextFileInterpreter {}
 
-  block TemperaturesCSVInterpreter oftype CSVInterpreter {
+  block InterpretTemperaturesCSV oftype CSVInterpreter {
       delimiter: ';';
   }
 
-  block NameHeaders oftype CellWriter {
+  block UpdateHeaders oftype CellWriter {
       at: range A1:E1;
-      write: ["id", "producer","model", "month", "temperature"];
+      write: ["id", "producer", "model", "month", "temperature"];
   }
 
-  block NameLastHeader oftype CellWriter {
+  block UpdateLastHeader oftype CellWriter {
       at: cell J1;
       write: ["battery_temperature"];
   }
 
-  block TemperaturesTableInterpreter oftype TableInterpreter {
+  block InterpretTemperaturesTable oftype TableInterpreter {
     header: true;
     columns: [
       "id" oftype text,
@@ -51,7 +53,26 @@ pipeline TemperaturePipeline {
     ];
   }
 
-  block TemperaturesLoader oftype SQLiteLoader {
+  block ConvertBatteryTempToKelvin oftype TableTransformer {
+    inputColumns: ["battery_temperature"];
+    outputColumn: "battery_temperature";
+    uses: CelsiusToFahrenheit;
+  }
+
+  transform CelsiusToFahrenheit {
+    from tempCelsius oftype decimal;
+    to tempFahrenheit oftype decimal;
+
+    tempFahrenheit: (tempCelsius * 9/5) + 32;
+  }
+
+  block ConvertTempToKelvin oftype TableTransformer {
+    inputColumns: ["temperature"];
+    outputColumn: "temperature";
+    uses: CelsiusToFahrenheit;
+  }
+
+  block LoadTemperaturesToDB oftype SQLiteLoader {
     table: "temperatures";
     file: "./temperatures.sqlite";
   }
