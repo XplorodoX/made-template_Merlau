@@ -1,18 +1,53 @@
 pipeline GFTSPipeline {
 
-
     DownloadData
-        -> StopsInterpreter
-        -> LoadTemperaturesToDB;
+        -> UnzipArchive
+        -> SelectStopsFile
+        -> ParseFileText
+        -> InterpretStopsCSV
+        -> InterpretStopsTable
+        -> LoadStopsToDB;
 
-
-    block DownloadData oftype GTFSExtractor {
+    block DownloadData oftype HttpExtractor {
         url: "https://gtfs.rhoenenergie-bus.de/GTFS.zip";
     }
 
-    block StopsInterpreter oftype GTFSStopsInterpreter { }
+    block UnzipArchive oftype ArchiveInterpreter {
+        archiveType: "zip";
+    }
 
-    block LoadTemperaturesToDB oftype SQLiteLoader {
+    block SelectStopsFile oftype FilePicker {
+        path: "./stops.txt";
+    }
+
+    block ParseFileText oftype TextFileInterpreter {}
+
+    block InterpretStopsCSV oftype CSVInterpreter {
+        enclosingEscape: '"';
+        delimiter: ',';
+        enclosing: '"';
+    }
+
+    block InterpretStopsTable oftype TableInterpreter {
+        header: true;
+        columns: [
+            "stop_id" oftype text,
+            "stop_name" oftype text,
+            "stop_lat" oftype decimal,
+            "stop_lon" oftype decimal,
+            "zone_id" oftype keepstops,
+        ];
+    }
+
+    valuetype keepstops oftype integer {
+        constraints: [Constraint_ID];
+    }
+
+    constraint Constraint_ID on integer:
+        value > 1925;
+
+
+    block LoadStopsToDB oftype SQLiteLoader {
         table: "stops";
         file: "./gtfs.sqlite";
     }
