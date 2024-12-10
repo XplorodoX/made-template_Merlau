@@ -32,7 +32,7 @@ pipeline GFTSPipeline {
         header: true;
         columns: [
             "stop_id" oftype integer,
-            "stop_name" oftype text,
+            "stop_name" oftype germanumalut,
             "stop_lat" oftype decimal,
             "stop_lon" oftype decimal,
             "zone_id" oftype keepstops,
@@ -40,13 +40,19 @@ pipeline GFTSPipeline {
     }
 
     valuetype keepstops oftype integer {
-        constraints: [Constraint_ID];
+        constraints: [keep];
     }
 
-    constraint Constraint_ID on integer:
-        value > 1924;
+    constraint keep on integer:
+        value >= 1925;
 
+    valuetype germanumalut oftype text {
+        constraints: [germanUmlauts];
+    }
 
+    constraint germanUmlauts on text:
+        value matches /[äöüÄÖÜß]/;
+    
     block LoadStopsToDB oftype SQLiteLoader {
         table: "stops";
         file: "./gtfs.sqlite";
