@@ -2,8 +2,6 @@ name: Execute Pipeline
 
 on:
   push:
-    branches:
-      - main
     paths:
       - project/**
 
@@ -18,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up the Python environment based on matrix versions
+      # Step 2: Set up the Python environment
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -30,9 +28,12 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
 
-      # Step 4: Run the pipeline script
-      - name: Run pipeline script
+      # Step 4: Debug pipeline script
+      - name: Debug pipeline script
         run: |
+          echo "Current directory: $(pwd)"
+          echo "Listing files in project directory:"
+          ls -la project/
           chmod +x project/pipeline.sh
           project/pipeline.sh
 
