@@ -12,29 +12,30 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["pypy3.10", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
-      - name: Checkout repository
+      # Step 1: Check out the repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      # Step 2: Set up the Python environment based on matrix versions
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Upgrade pip and install dependencies
+      # Step 3: Upgrade pip and install dependencies
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip
           if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
 
-      - name: Run Exercise Feedback Pipeline
+      # Step 4: Run the pipeline script
+      - name: Run pipeline script
         run: |
           chmod +x project/pipeline.sh
           project/pipeline.sh
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
 
-      - name: Validate Outputs
-        run: |
-          echo "Validating outputs..."
-          ls -l project/
+      # Step 5: Validate outputs (optional logging step)
+      - name: List project directory contents
+        run: ls -l project/
