@@ -1,4 +1,4 @@
-name: Exercise Feedback
+name: Execute Pipeline
 
 on:
   push:
