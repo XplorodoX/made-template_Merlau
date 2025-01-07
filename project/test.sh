@@ -1,37 +1,19 @@
 #!/usr/bin/env bash
-# tests.sh
+# test.sh
+#
+# Bash-Skript, das dein Python-Testskript ausführt.
 
-# Brich ab, wenn ein Befehl fehlschlägt
-set -e
+set -e  # Script sofort beenden, wenn ein Befehl einen Fehler zurückgibt
 
-echo "Starte Systemtest für die Datenpipeline..."
+echo "Starte Tests..."
 
-# 1) Alte Ausgabedateien entfernen (falls vorhanden)
-OUTPUT_FILE="filtered_combined_temperature_emissions.csv"
-if [ -f "$OUTPUT_FILE" ]; then
-    echo "Entferne vorhandenes Ausgabefile: $OUTPUT_FILE"
-    rm "$OUTPUT_FILE"
+# Optional: Prüfen, ob Python installiert ist
+if ! command -v python3 &>/dev/null; then
+  echo "Fehler: python3 ist nicht installiert!"
+  exit 1
 fi
 
-# 2) Datenpipeline ausführen
-echo "Führe Datenpipeline aus..."
-python3 project/main.py input_data.csv "$OUTPUT_FILE"
+# Dein Python-Testskript ausführen
+python3 ./project/test.py
 
-# 3) Prüfe, ob das Ausgabefile erzeugt wurde
-if [ -f "$OUTPUT_FILE" ]; then
-    echo "✓ Ausgabedatei $OUTPUT_FILE wurde erzeugt."
-else
-    echo "✗ Fehler: Ausgabedatei $OUTPUT_FILE fehlt!"
-    exit 1
-fi
-
-# 4) Optional: Weitere Validierung
-FILE_SIZE=$(wc -c <"$OUTPUT_FILE")
-if [ "$FILE_SIZE" -gt 0 ]; then
-    echo "✓ $OUTPUT_FILE ist nicht leer ($FILE_SIZE Bytes)."
-else
-    echo "✗ Fehler: $OUTPUT_FILE ist leer."
-    exit 1
-fi
-
-echo "Systemtest erfolgreich abgeschlossen!"
+echo "Alle Tests erfolgreich abgeschlossen!"
