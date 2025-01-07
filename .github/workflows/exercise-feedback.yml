@@ -1,41 +1,52 @@
-# .github/workflows/ci.yml
-
-name: CI
+name: Exercise Feedback
 
 on:
   push:
     branches:
       - main
+    paths:
+      - exercises/**
 
 jobs:
-  run-tests:
+  exercise-feedback:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          path: main
 
-      # Example: if you need Node.js for your tests
+      - name: Checkout exercise feedback
+        uses: actions/checkout@v4
+        with:
+          repository: jvalue/made-exercise-feedback
+          path: grading
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: "lts/*"
 
-      # Example: if you need Python 3.11 for your tests
-      - name: Set up Python
+      # Install jayvee
+      - name: Set up Jayvee
+        run: |
+          ./grading/ci/setup_jayvee.sh
+
+      # Install python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: 3.11
 
-      # Run your tests. You may need to install dependencies first, e.g. pip install, npm install, etc.
-      - name: Install dependencies
+      # Run grading feedback
+      - name: Exercise feedback
+        id: ex_feedback
         run: |
-          # Example installation commands (adjust to your project's needs)
-          pip install -r requirements.txt 2>/dev/null || true
-          npm install || true
-          chmod +x ./project/pipeline.sh  # Ensure the test script is executable
+          ./grading/ci/run_grading.sh
 
-      - name: Run tests
-        run: |
-          # If your tests are too large or require external data, mock or comment them out.
-          # Provide an explanation if you must comment them out.
-          ./project/pipeline.sh
+      # Upload feedback
+      - name: Upload feedback
+        uses: actions/upload-artifact@v4
+        with:
+          name: exercise-feedback
+          path: ./grading/feedback-ex?.txt

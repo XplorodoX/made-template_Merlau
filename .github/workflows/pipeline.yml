@@ -1,42 +1,41 @@
-name: Execute Pipeline
+# .github/workflows/ci.yml
+
+name: CI
 
 on:
   push:
-    paths:
-      - project/**
+    branches:
+      - main
 
 jobs:
-  exercise-feedback:
+  run-tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
-      # Step 1: Check out the repository
-      - name: Checkout code
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up the Python environment
-      - name: Set up Python ${{ matrix.python-version }}
+      # Example: if you need Node.js for your tests
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      # Example: if you need Python 3.11 for your tests
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.11
 
-      # Step 3: Upgrade pip and install dependencies
+      # Run your tests. You may need to install dependencies first, e.g. pip install, npm install, etc.
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
+          # Example installation commands (adjust to your project's needs)
+          pip install -r requirements.txt 2>/dev/null || true
+          npm install || true
+          chmod +x ./project/test.sh  # Ensure the test script is executable
 
-      # Step 4: Debug pipeline script
-      - name: Debug pipeline script
+      - name: Run tests
         run: |
-          echo "Current directory: $(pwd)"
-          echo "Listing files in project directory:"
-          ls -la project/
-          chmod +x project/pipeline.sh
-          project/pipeline.sh
-
-      # Step 5: Validate outputs (optional logging step)
-      - name: List project directory contents
-        run: ls -l project/
+          # If your tests are too large or require external data, mock or comment them out.
+          # Provide an explanation if you must comment them out.
+          ./project/test.sh
