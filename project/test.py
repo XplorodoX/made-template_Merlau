@@ -1,42 +1,40 @@
 import unittest
 import os
+import subprocess
 import pandas as pd
-from pipeline import main  # Aus pipeline.py importieren
 
 class TestDataPipeline(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         """
-        Führt einmalig vor allen Tests die Pipeline aus.
-        Wir nehmen an, dass pipeline.main() das CSV 'merged_dataset.csv' generiert.
+        Vor jedem Test einmal altes CSV löschen (falls vorhanden)
         """
-        # Falls schon eine alte CSV-Datei existiert, löschen wir sie.
-        csv_file = "merged_dataset.csv"
-        if os.path.isfile(csv_file):
-            os.remove(csv_file)
+        self.csv_file = "merged_dataset.csv"
+        if os.path.exists(self.csv_file):
+            os.remove(self.csv_file)
 
-        # Jetzt die Pipeline starten
-        main()
+    def test_run_pipeline_and_check_csv(self):
+        """
+        Ruft main.py per subprocess auf, prüft, ob 'merged_dataset.csv' erzeugt wurde
+        und ob sie nicht leer ist.
+        """
+        # 1) main.py ausführen (hier wird dein Skript ganz normal gestartet)
+        subprocess.run(["python", "main.py"], check=True)
 
-    def test_csv_file_exists(self):
-        """
-        Prüft, ob die Pipeline ein 'merged_dataset.csv' erzeugt hat.
-        """
-        self.assertTrue(os.path.isfile('merged_dataset.csv'),
-                        "CSV-Ausgabedatei 'merged_dataset.csv' wurde nicht erzeugt.")
+        # 2) Check: CSV erzeugt?
+        self.assertTrue(
+            os.path.isfile(self.csv_file),
+            f"Die Datei {self.csv_file} wurde nicht erzeugt."
+        )
 
-    def test_csv_file_not_empty(self):
-        """
-        Prüft, ob die erzeugte CSV-Datei nicht leer ist.
-        """
-        file_size = os.path.getsize('merged_dataset.csv')
-        self.assertGreater(file_size, 0, "Die CSV-Datei ist leer.")
+        # 3) Check: Datei nicht leer?
+        self.assertGreater(
+            os.path.getsize(self.csv_file),
+            0,
+            f"Die Datei {self.csv_file} ist leer."
+        )
 
-    def test_csv_has_data(self):
-        """
-        Lädt die CSV in ein DataFrame und prüft, ob es mindestens eine Zeile gibt.
-        """
-        df = pd.read_csv('merged_dataset.csv')
+        # 4) Optional: Laden als Pandas-DataFrame, um weitere Prüfungen zu machen
+        df = pd.read_csv(self.csv_file)
         self.assertFalse(df.empty, "CSV-Datei enthält keine Zeilen.")
         self.assertGreater(len(df), 0, "CSV-Datei hat keine Datenzeilen.")
 
