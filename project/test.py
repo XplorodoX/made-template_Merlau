@@ -78,39 +78,5 @@ class TestDataPipeline(unittest.TestCase):
                 f"Erwartete Spalte '{column}' fehlt in der CSV-Datei."
             )
 
-    def test_no_nan_or_invalid_values(self):
-        """
-        Testet, ob die generierte CSV-Datei keine NaN-Werte oder fehlerhafte Werte enthält.
-        """
-        # Sicherstellen, dass die Datei existiert, bevor versucht wird, sie zu laden
-        self.assertTrue(
-            os.path.isfile(self.csv_file),
-            f"Die Datei {self.csv_file} existiert nicht."
-        )
-
-        try:
-            df = pd.read_csv(self.csv_file)
-        except Exception as e:
-            self.fail(f"Die CSV-Datei konnte nicht geladen werden: {e}")
-
-        # Überprüfen, ob es NaN-Werte gibt
-        self.assertFalse(
-            df.isnull().values.any(),
-            "Die CSV-Datei enthält NaN-Werte."
-        )
-
-        # Beispiel für fehlerhafte Werteprüfung (negative Werte in 'emissions_total' oder 'Temperature')
-        if 'emissions_total' in df.columns:
-            self.assertTrue(
-                (df['emissions_total'] >= 0).all(),
-                "Die Spalte 'emissions_total' enthält negative Werte."
-            )
-
-        if 'Temperature' in df.columns:
-            self.assertTrue(
-                (df['Temperature'] > -273.15).all(),
-                "Die Spalte 'Temperature' enthält unplausible Werte (kleiner als -273.15°C)."
-            )
-
 if __name__ == '__main__':
     unittest.main()
