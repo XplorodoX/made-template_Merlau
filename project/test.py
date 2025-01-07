@@ -6,8 +6,8 @@ from pipeline import main
 class TestDataPipeline(unittest.TestCase):
     def setUp(self):
         """
-        Vor jedem Test wird die Testumgebung vorbereitet.
-        Lösche die CSV-Datei, falls sie existiert, um saubere Tests sicherzustellen.
+        Prepares the test environment before each test.
+        Deletes the CSV file if it exists to ensure clean tests.
         """
         self.csv_file = "filtered_combined_temperature_emissions.csv"
         if os.path.exists(self.csv_file):
@@ -15,67 +15,67 @@ class TestDataPipeline(unittest.TestCase):
 
     def tearDown(self):
         """
-        Nach jedem Test werden eventuelle erzeugte Dateien entfernt,
-        um die Testumgebung sauber zu halten.
+        Cleans up the test environment after each test.
+        Removes any generated files to keep the environment clean.
         """
         if os.path.exists(self.csv_file):
             os.remove(self.csv_file)
 
     def test_run_pipeline_and_check_csv(self):
         """
-        Testet, ob das Skript die Pipeline korrekt ausführt:
-        - CSV-Datei wird erstellt
-        - Die Datei ist nicht leer
-        - Die Datei enthält valide Daten
+        Tests whether the script executes the pipeline correctly:
+        - Verifies that the CSV file is created
+        - Checks that the file is not empty
+        - Validates the file contains proper data
         """
-        # Aktuelles Arbeitsverzeichnis ausgeben
-        print(f"Aktuelles Arbeitsverzeichnis: {os.getcwd()}")
+        # Print the current working directory
+        print(f"Current working directory: {os.getcwd()}")
 
-        # Skript ausführen
+        # Run the script
         try:
             main()
-            print("Die main()-Funktion wurde erfolgreich ausgeführt.")
+            print("The main() function executed successfully.")
         except Exception as e:
-            self.fail(f"Die Ausführung der Pipeline ist fehlgeschlagen: {e}")
+            self.fail(f"Pipeline execution failed: {e}")
 
-        # Inhalt des aktuellen Verzeichnisses ausgeben
-        print(f"Inhalt des Verzeichnisses nach Ausführung von main(): {os.listdir(os.getcwd())}")
+        # Print the directory contents after running the script
+        print(f"Directory contents after running main(): {os.listdir(os.getcwd())}")
 
-        # Überprüfen, ob die CSV-Datei erstellt wurde
+        # Verify that the CSV file was created
         self.assertTrue(
             os.path.isfile(self.csv_file),
-            f"Die Datei {self.csv_file} wurde nicht erzeugt."
+            f"The file {self.csv_file} was not created."
         )
 
-        # Überprüfen, ob die Datei nicht leer ist
+        # Verify that the file is not empty
         self.assertGreater(
             os.path.getsize(self.csv_file),
             0,
-            f"Die Datei {self.csv_file} ist leer."
+            f"The file {self.csv_file} is empty."
         )
 
-        # Datei als Pandas-DataFrame laden und prüfen
+        # Load the file as a Pandas DataFrame and validate its contents
         try:
             df = pd.read_csv(self.csv_file)
         except Exception as e:
-            self.fail(f"Die CSV-Datei konnte nicht geladen werden: {e}")
+            self.fail(f"Failed to load the CSV file: {e}")
 
         self.assertFalse(
             df.empty,
-            "Die CSV-Datei enthält keine Zeilen."
+            "The CSV file contains no rows."
         )
         self.assertGreater(
             len(df),
             0,
-            "Die CSV-Datei enthält keine Datenzeilen."
+            "The CSV file contains no data rows."
         )
 
-        # Zusätzliche Validierung: Prüfen, ob erwartete Spalten existieren
-        expected_columns = ["Entity", "Code", "Month", "Year", "Temperature", "emissions_total"]  # Passe dies an deine tatsächlichen Spalten an
+        # Additional validation: Check if expected columns exist
+        expected_columns = ["Entity", "Code", "Month", "Year", "Temperature", "emissions_total"] 
         for column in expected_columns:
             self.assertIn(
                 column, df.columns,
-                f"Erwartete Spalte '{column}' fehlt in der CSV-Datei."
+                f"Expected column '{column}' is missing in the CSV file."
             )
 
 if __name__ == '__main__':
