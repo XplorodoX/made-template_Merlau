@@ -1,7 +1,7 @@
 import unittest
 import os
 import pandas as pd
-from main1 import main  # Importiere die main-Funktion aus deinem Skript
+from main1 import main  
 
 class TestDataPipeline(unittest.TestCase):
     def setUp(self):
@@ -64,11 +64,38 @@ class TestDataPipeline(unittest.TestCase):
         )
 
         # Zusätzliche Validierung: Prüfen, ob erwartete Spalten existieren
-        expected_columns = ["Entity", "Code", "Month", "Year", "Temperature", "emissions_total"]  # Passe dies an deine tatsächlichen Spalten an
+        expected_columns = ["Entity", "Code", "Month", "Year", "Temperature", "emissions_total"] 
         for column in expected_columns:
             self.assertIn(
                 column, df.columns,
                 f"Erwartete Spalte '{column}' fehlt in der CSV-Datei."
+            )
+
+    def test_no_nan_or_invalid_values(self):
+        """
+        Testet, ob die generierte CSV-Datei keine NaN-Werte oder fehlerhafte Werte enthält.
+        """
+        try:
+            df = pd.read_csv(self.csv_file)
+        except Exception as e:
+            self.fail(f"Die CSV-Datei konnte nicht geladen werden: {e}")
+
+        # Überprüfen, ob es NaN-Werte gibt
+        self.assertFalse(
+            df.isnull().values.any(),
+            "Die CSV-Datei enthält NaN-Werte."
+        )
+
+        if 'emissions_total' in df.columns:
+            self.assertTrue(
+                (df['emissions_total'] >= 0).all(),
+                "Die Spalte 'emissions_total' enthält negative Werte."
+            )
+
+        if 'Temperature' in df.columns:
+            self.assertTrue(
+                (df['Temperature'] > -273.15).all(),
+                "Die Spalte 'Temperature' enthält unplausible Werte (kleiner als -273.15°C)."
             )
 
 if __name__ == '__main__':
