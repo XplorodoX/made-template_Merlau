@@ -14,13 +14,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      # Example: if you need Node.js for your tests
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-
-      # Example: if you need Python 3.11 for your tests
+      # install Python 3.11  
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
