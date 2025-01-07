@@ -1,7 +1,7 @@
 import unittest
 import os
 import pandas as pd
-from main1 import main  
+from main1 import main  # Importiere die main-Funktion aus deinem Skript
 
 class TestDataPipeline(unittest.TestCase):
     def setUp(self):
@@ -28,11 +28,18 @@ class TestDataPipeline(unittest.TestCase):
         - Die Datei ist nicht leer
         - Die Datei enthält valide Daten
         """
+        # Aktuelles Arbeitsverzeichnis ausgeben
+        print(f"Aktuelles Arbeitsverzeichnis: {os.getcwd()}")
+
         # Skript ausführen
         try:
             main()
+            print("Die main()-Funktion wurde erfolgreich ausgeführt.")
         except Exception as e:
             self.fail(f"Die Ausführung der Pipeline ist fehlgeschlagen: {e}")
+
+        # Inhalt des aktuellen Verzeichnisses ausgeben
+        print(f"Inhalt des Verzeichnisses nach Ausführung von main(): {os.listdir(os.getcwd())}")
 
         # Überprüfen, ob die CSV-Datei erstellt wurde
         self.assertTrue(
@@ -64,7 +71,7 @@ class TestDataPipeline(unittest.TestCase):
         )
 
         # Zusätzliche Validierung: Prüfen, ob erwartete Spalten existieren
-        expected_columns = ["Entity", "Code", "Month", "Year", "Temperature", "emissions_total"] 
+        expected_columns = ["Entity", "Code", "Month", "Year", "Temperature", "emissions_total"]  # Passe dies an deine tatsächlichen Spalten an
         for column in expected_columns:
             self.assertIn(
                 column, df.columns,
@@ -75,6 +82,12 @@ class TestDataPipeline(unittest.TestCase):
         """
         Testet, ob die generierte CSV-Datei keine NaN-Werte oder fehlerhafte Werte enthält.
         """
+        # Sicherstellen, dass die Datei existiert, bevor versucht wird, sie zu laden
+        self.assertTrue(
+            os.path.isfile(self.csv_file),
+            f"Die Datei {self.csv_file} existiert nicht."
+        )
+
         try:
             df = pd.read_csv(self.csv_file)
         except Exception as e:
@@ -86,6 +99,7 @@ class TestDataPipeline(unittest.TestCase):
             "Die CSV-Datei enthält NaN-Werte."
         )
 
+        # Beispiel für fehlerhafte Werteprüfung (negative Werte in 'emissions_total' oder 'Temperature')
         if 'emissions_total' in df.columns:
             self.assertTrue(
                 (df['emissions_total'] >= 0).all(),
