@@ -64,7 +64,7 @@ class TestDataPipeline(unittest.TestCase):
         )
 
         # Zusätzliche Validierung: Prüfen, ob erwartete Spalten existieren
-        expected_columns = ["column1", "column2"]  # Passe dies an deine tatsächlichen Spalten an
+        expected_columns = ["Entity", "Code", "Month", "Year", "Temperature", "emission_total"]  # Passe dies an deine tatsächlichen Spalten an
         for column in expected_columns:
             self.assertIn(
                 column, df.columns,
