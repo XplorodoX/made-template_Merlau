@@ -1,7 +1,7 @@
 import unittest
 import os
 import pandas as pd
-from project.pipeline import main  # Importiere die main-Funktion aus deinem Skript
+from pipeline import main 
 
 class TestDataPipeline(unittest.TestCase):
     def setUp(self):
