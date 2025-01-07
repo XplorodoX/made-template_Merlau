@@ -15,7 +15,7 @@ fi
 
 # 2) Datenpipeline ausführen
 echo "Führe Datenpipeline aus..."
-python3 ./project/main.py input_data.csv "$OUTPUT_FILE"
+python3 project/main.py input_data.csv "$OUTPUT_FILE"
 
 # 3) Prüfe, ob das Ausgabefile erzeugt wurde
 if [ -f "$OUTPUT_FILE" ]; then
