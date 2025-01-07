@@ -9,6 +9,8 @@ exercises/trees.sqlite
 
 /project/main.ipynb
 
+*.csv
+
 project/project/*
 exercises/example.jv
 project/main.py
