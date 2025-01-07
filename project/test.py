@@ -18,7 +18,7 @@ class TestDataPipeline(unittest.TestCase):
         und ob sie nicht leer ist.
         """
         # 1) main.py ausführen (hier wird dein Skript ganz normal gestartet)
-        subprocess.run(["python", "main.py"], check=True)
+        subprocess.run(["python", "project/main.py"], check=True)
 
         # 2) Check: CSV erzeugt?
         self.assertTrue(
