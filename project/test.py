@@ -9,7 +9,7 @@ class TestDataPipeline(unittest.TestCase):
         Vor jedem Test wird die Testumgebung vorbereitet.
         Lösche die CSV-Datei, falls sie existiert, um saubere Tests sicherzustellen.
         """
-        self.csv_file = "merged_dataset.csv"
+        self.csv_file = "filtered_combined_temperature_emissions.csv"
         if os.path.exists(self.csv_file):
             os.remove(self.csv_file)
 
