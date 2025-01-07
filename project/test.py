@@ -6,6 +6,7 @@ import subprocess
 def run_pipeline_test():
     """
     Führt die Datenpipeline aus und überprüft, ob die erwartete Ausgabedatei existiert und nicht leer ist.
+    Dabei lädt die Pipeline die Eingangsdaten von selbst herunter (kein lokales input_file notwendig).
     """
     print("Starte Systemtest für die Datenpipeline...")
 
@@ -17,9 +18,9 @@ def run_pipeline_test():
         print(f"Entferne vorhandenes Ausgabefile: {output_file}")
         os.remove(output_file)
 
-    # 2) Datenpipeline starten
+    # 2) Pipeline starten (die Pipeline lädt die Daten selbst herunter)
     print("Führe Datenpipeline aus...")
-    subprocess.run(["python3", "pipeline.py", "input_data.csv", output_file], check=True)
+    subprocess.run(["python3", "pipeline.py"], check=True)
 
     # 3) Überprüfe, ob das Ausgabefile vorhanden ist
     if not os.path.exists(output_file):
