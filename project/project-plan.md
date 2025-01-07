@@ -5,7 +5,7 @@ Analysis of CO₂ Emissions in the Americas Over the Past Two Decades
 
 ## Main Question
 
-1. How have CO₂ emissions changed over the last two decades in North and South America, and which countries are contributing the most to these changes?
+How have CO₂ emissions changed over the last two decades in North and South America, and which countries are contributing the most to these changes?
 
 ## Description
 
