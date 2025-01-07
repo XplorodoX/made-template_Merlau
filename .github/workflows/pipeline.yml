@@ -20,16 +20,13 @@ jobs:
         with:
           python-version: 3.11
 
-      # Run your tests. You may need to install dependencies first, e.g. pip install, npm install, etc.
+      # Install dependencies and run tests
       - name: Install dependencies
         run: |
-          # Example installation commands (adjust to your project's needs)
-          pip install -r requirements.txt 2>/dev/null || true
-          npm install || true
-          chmod +x ./project/test.sh  # Ensure the test script is executable
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          chmod +x ./project/test.sh
 
       - name: Run tests
         run: |
-          # If your tests are too large or require external data, mock or comment them out.
-          # Provide an explanation if you must comment them out.
           ./project/test.sh
