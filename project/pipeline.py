@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 from scipy.stats import linregress
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # Disable SSL certificate verification (useful if there are SSL issues when fetching data from URLs).
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -164,82 +165,6 @@ def merge_datasets(temperature_data, emissions_data):
     return combined_data
 
 
-# Fetch the emissions and temperature datasets from the source.
-# The function fetch_data() retrieves and returns these datasets as emissions_data and temperature_data.
-emissions_data, temperature_data = fetch_data()
-
-# Transform the temperature data into a format suitable for analysis.
-# The function transform_temperature_data() processes the raw temperature_data, 
-# such as reshaping or cleaning it, and returns the transformed dataset as temperature_melted.
-temperature_melted = transform_temperature_data(temperature_data)
-
-# Define a list of countries that are part of the North American region.
-north_america_countries = [
-    "Antigua and Barbuda", "Bahamas", "Belize", "Costa Rica",
-    "Dominican Republic", "El Salvador", "Haiti", "Honduras", 
-    "Jamaica", "Canada", "Cuba", "Mexico", "Nicaragua", 
-    "Panama", "Trinidad and Tobago", "United States"
-]
-
-# Define a list of countries that are part of the South American region.
-south_america_countries = [
-    "Argentina", "Bolivia", "Brazil", "Chile", "Ecuador",
-    "Guyana", "Colombia", "Paraguay", "Peru", "Suriname",
-    "Uruguay", "Venezuela", "Guatemala"
-]
-
-# Combine the lists for North America and South America into a single list of countries 
-# representing all of the Americas.
-all_americas = north_america_countries + south_america_countries
-
-# Group the melted temperature dataset (temperature_melted) by "Entity" (country/region) and "Year",
-# and calculate the average temperature for each combination of entity and year.
-yearly_summary_n = temperature_melted.groupby(["Entity", "Year"]).agg({
-    "Temperature": "mean",  # Calculate the mean temperature for each group.
-}).reset_index()  # Reset the index to turn the grouped data into a standard dataframe.
-
-# Rename the columns for better clarity and formatting (though in this case, the column names are unchanged).
-yearly_summary_n.rename(columns={
-    "Entity": "Entity",  # Rename "Entity" to "Entity" (redundant here but could be adjusted for consistency).
-    "Year": "Year",      # Rename "Year" to "Year".
-    "Temperature": "Temperature"  # Rename "Temperature" to "Temperature".
-}, inplace=True)
-
-# Filter the yearly summary dataset (yearly_summary_n) and the emissions dataset (emissions_data) 
-# to include only data for countries in North America (north_america_countries). 
-# This results in two filtered datasets: 
-# - yearly_summary_na_filtered: Filtered yearly summary data for North America.
-# - emissions_filtered_na: Filtered emissions data for North America.
-yearly_summary_na_filtered, emissions_filtered_na = filter_data(yearly_summary_n, emissions_data, north_america_countries)
-
-# Merge the filtered yearly summary for North America (yearly_summary_na_filtered) 
-# with the filtered emissions data for North America (emissions_filtered_na) 
-# into a single dataset named "combined_filtered_data_na".
-combined_filtered_data_na = merge_datasets(yearly_summary_na_filtered, emissions_filtered_na)
-
-# Group the filtered dataset for North America (combined_filtered_data_na) by "Year" 
-# and calculate the yearly values for each group.
-yearly_summarynorden = combined_filtered_data_na.groupby("Year").agg({
-    "Temperature": "mean",  # Calculate the average temperature for all months within each year.
-    "emissions_total": "sum"  # Calculate the total emissions for all months within each year.
-}).reset_index()  # Reset the index to convert the grouped data back into a standard dataframe.
-
-# Filter and merge datasets for North America
-yearly_summary_sa_filtered, emissions_filtered_na = filter_data(yearly_summary_n, emissions_data, south_america_countries)
-
-# Merge the filtered yearly summary for South America (yearly_summary_sa_filtered) 
-# with the filtered emissions data for North America (emissions_filtered_na) into a new dataset called "sueden".
-sueden = merge_datasets(yearly_summary_sa_filtered, emissions_filtered_na)
-
-# Grouping data by 'Year' and calculating annual statistics
-yearly_summarysouth = sueden.groupby("Year").agg({
-    "Temperature": "mean",  # Calculate the average temperature across all months for each year
-    "emissions_total": "sum"  # Sum the total emissions across all months for each year
-}).reset_index()
-
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-
 def plot_emissions_by_country_large_graph(emissions_data_na, countries_na, region_na, 
                                           emissions_data_sa, countries_sa, region_sa, output_file):
     """
@@ -307,11 +232,6 @@ def plot_emissions_by_country_large_graph(emissions_data_na, countries_na, regio
     fig.write_image(output_file)
     print(f"The graph has been successfully saved as '{output_file}'.")
 
-plot_emissions_by_country_large_graph(
-    combined_filtered_data_na, north_america_countries, "Nordamerika",
-    sueden, south_america_countries, "Südamerika",
-    "co2_emissions_large_graph.png"
-)
 
 
 def plot_temperature_by_region_large_graph(temp_data_na, countries_na, region_na, 
@@ -380,13 +300,6 @@ def plot_temperature_by_region_large_graph(temp_data_na, countries_na, region_na
     fig.write_image(output_file)
     print(f"The graph has been successfully saved as '{output_file}'.")
 
-plot_temperature_by_region_large_graph(
-    combined_filtered_data_na, north_america_countries, "Nordamerika",
-    sueden, south_america_countries, "Südamerika",
-    "temperature_large_graph.png"
-)
-
-
 def plot_temperature_vs_emissions(df_combined, output_file, width=1600, height=800):
     """
     Creates a scatter plot showing temperature as a function of total emissions, 
@@ -423,19 +336,6 @@ def plot_temperature_vs_emissions(df_combined, output_file, width=1600, height=8
 
     # Save the graph as an image with specified dimensions
     fig.write_image(output_file, width=width, height=height)
-
-# Add a new column "Region" to the yearly summary for North America and set its value to "Nordamerika".
-yearly_summarynorden["Region"] = "Nordamerika"
-
-# Add a new column "Region" to the yearly summary for South America and set its value to "Südamerika".
-yearly_summarysouth["Region"] = "Südamerika"
-
-# Combine the dataframes for North America and South America into one, 
-# ignoring the original index values to create a new continuous index.
-df_combined = pd.concat([yearly_summarynorden, yearly_summarysouth], ignore_index=True)
-
-# Generate a plot comparing temperature and emissions, saving the output to a file named "temperature_vs_emissions.png".
-plot_temperature_vs_emissions(df_combined, "temperature_vs_emissions.png")
 
 def plot_temperature_with_trendlines(df_combined, p_values_df, output_file, width=1600, height=800):
     """
@@ -532,6 +432,106 @@ def calculate_p_values(df_combined):
 
     # Convert the results list into a DataFrame for easier analysis and visualization
     return pd.DataFrame(results)
+
+
+# Fetch the emissions and temperature datasets from the source.
+# The function fetch_data() retrieves and returns these datasets as emissions_data and temperature_data.
+emissions_data, temperature_data = fetch_data()
+
+# Transform the temperature data into a format suitable for analysis.
+# The function transform_temperature_data() processes the raw temperature_data, 
+# such as reshaping or cleaning it, and returns the transformed dataset as temperature_melted.
+temperature_melted = transform_temperature_data(temperature_data)
+
+# Define a list of countries that are part of the North American region.
+north_america_countries = [
+    "Antigua and Barbuda", "Bahamas", "Belize", "Costa Rica",
+    "Dominican Republic", "El Salvador", "Haiti", "Honduras", 
+    "Jamaica", "Canada", "Cuba", "Mexico", "Nicaragua", 
+    "Panama", "Trinidad and Tobago", "United States"
+]
+
+# Define a list of countries that are part of the South American region.
+south_america_countries = [
+    "Argentina", "Bolivia", "Brazil", "Chile", "Ecuador",
+    "Guyana", "Colombia", "Paraguay", "Peru", "Suriname",
+    "Uruguay", "Venezuela", "Guatemala"
+]
+
+# Combine the lists for North America and South America into a single list of countries 
+# representing all of the Americas.
+all_americas = north_america_countries + south_america_countries
+
+# Group the melted temperature dataset (temperature_melted) by "Entity" (country/region) and "Year",
+# and calculate the average temperature for each combination of entity and year.
+yearly_summary_n = temperature_melted.groupby(["Entity", "Year"]).agg({
+    "Temperature": "mean",  # Calculate the mean temperature for each group.
+}).reset_index()  # Reset the index to turn the grouped data into a standard dataframe.
+
+# Rename the columns for better clarity and formatting (though in this case, the column names are unchanged).
+yearly_summary_n.rename(columns={
+    "Entity": "Entity",  # Rename "Entity" to "Entity" (redundant here but could be adjusted for consistency).
+    "Year": "Year",      # Rename "Year" to "Year".
+    "Temperature": "Temperature"  # Rename "Temperature" to "Temperature".
+}, inplace=True)
+
+# Filter the yearly summary dataset (yearly_summary_n) and the emissions dataset (emissions_data) 
+# to include only data for countries in North America (north_america_countries). 
+# This results in two filtered datasets: 
+# - yearly_summary_na_filtered: Filtered yearly summary data for North America.
+# - emissions_filtered_na: Filtered emissions data for North America.
+yearly_summary_na_filtered, emissions_filtered_na = filter_data(yearly_summary_n, emissions_data, north_america_countries)
+
+# Merge the filtered yearly summary for North America (yearly_summary_na_filtered) 
+# with the filtered emissions data for North America (emissions_filtered_na) 
+# into a single dataset named "combined_filtered_data_na".
+combined_filtered_data_na = merge_datasets(yearly_summary_na_filtered, emissions_filtered_na)
+
+# Group the filtered dataset for North America (combined_filtered_data_na) by "Year" 
+# and calculate the yearly values for each group.
+yearly_summarynorden = combined_filtered_data_na.groupby("Year").agg({
+    "Temperature": "mean",  # Calculate the average temperature for all months within each year.
+    "emissions_total": "sum"  # Calculate the total emissions for all months within each year.
+}).reset_index()  # Reset the index to convert the grouped data back into a standard dataframe.
+
+# Filter and merge datasets for North America
+yearly_summary_sa_filtered, emissions_filtered_na = filter_data(yearly_summary_n, emissions_data, south_america_countries)
+
+# Merge the filtered yearly summary for South America (yearly_summary_sa_filtered) 
+# with the filtered emissions data for North America (emissions_filtered_na) into a new dataset called "sueden".
+sueden = merge_datasets(yearly_summary_sa_filtered, emissions_filtered_na)
+
+# Grouping data by 'Year' and calculating annual statistics
+yearly_summarysouth = sueden.groupby("Year").agg({
+    "Temperature": "mean",  # Calculate the average temperature across all months for each year
+    "emissions_total": "sum"  # Sum the total emissions across all months for each year
+}).reset_index()
+
+# Add a new column "Region" to the yearly summary for North America and set its value to "Nordamerika".
+yearly_summarynorden["Region"] = "Nordamerika"
+
+# Add a new column "Region" to the yearly summary for South America and set its value to "Südamerika".
+yearly_summarysouth["Region"] = "Südamerika"
+
+# Combine the dataframes for North America and South America into one, 
+# ignoring the original index values to create a new continuous index.
+df_combined = pd.concat([yearly_summarynorden, yearly_summarysouth], ignore_index=True)
+
+plot_temperature_by_region_large_graph(
+    combined_filtered_data_na, north_america_countries, "Nordamerika",
+    sueden, south_america_countries, "Südamerika",
+    "temperature_large_graph.png"
+)
+
+
+plot_emissions_by_country_large_graph(
+    combined_filtered_data_na, north_america_countries, "Nordamerika",
+    sueden, south_america_countries, "Südamerika",
+    "co2_emissions_large_graph.png"
+)
+
+# Generate a plot comparing temperature and emissions, saving the output to a file named "temperature_vs_emissions.png".
+plot_temperature_vs_emissions(df_combined, "temperature_vs_emissions.png")
 
 # Calculate p-values for statistical significance testing
 p_values_df = calculate_p_values(df_combined)
