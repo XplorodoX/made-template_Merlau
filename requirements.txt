@@ -2,3 +2,4 @@ pandas
 scipy
 plotly
 requests
+kaleido
