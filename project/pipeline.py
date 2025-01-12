@@ -111,6 +111,14 @@ def main():
 
     all_americas = north_america_countries + south_america_countries
 
+    # summiere für nord amerika für jedes Jahr die emissions und die temperaturen auf und erstelle eine neue csv dafür
+
+    temperature_filtered, emissions_filtered = filter_data(temperature_melted, emissions_data, north_america_countries)
+    combined_filtered_data = merge_datasets(temperature_filtered, emissions_filtered)
+    combined_filtered_data = combined_filtered_data.groupby("Year").sum()
+    combined_filtered_data.to_csv('north_america_data.csv', index=True)
+    print("Die gefilterten Daten wurden als 'north_america_data.csv' gespeichert.")
+    
     # Filter data
     temperature_filtered, emissions_filtered = filter_data(temperature_melted, emissions_data, all_americas)
 
