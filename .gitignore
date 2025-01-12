@@ -17,5 +17,11 @@ project/main.py
 
 exercise4.jv
 
-/project/Final_Report
 project/country_extract.py
+
+*.png
+*.ipynb
+*.aux
+*.log
+*.out
+*.gz
