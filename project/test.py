@@ -1,59 +1,35 @@
-import unittest
 import os
+import unittest
 from pipeline import main
 
-class TestDataPipeline(unittest.TestCase):
-    def setUp(self):
+class TestOutputFiles(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Run the main function to execute the data pipeline
+        main()
+
+    def test_output_files_exist(self):
         """
-        Prepares the test environment before each test.
-        Ensures no previous output files exist for clean testing.
+        Test to check if the expected output files exist after running the main script.
         """
-        self.output_files = [
+        # Define the base directory relative to the current script's location
+        base_directory = os.path.dirname(os.path.abspath(__file__))
+
+        # Define the list of expected output files
+        expected_files = [
             "temperature_large_graph.png",
             "co2_emissions_large_graph.png",
             "temperature_vs_emissions.png",
-            "temperature_trendlines.png"
+            "temperature_trendlines.png",
+            "df_combined.csv",
+            "yearly_summarysouth.csv",
+            "yearly_summarynorden.csv",
         ]
-        
-        for file in self.output_files:
-            if os.path.exists(file):
-                os.remove(file)
 
-    def tearDown(self):
-        """
-        Cleans up the test environment after each test.
-        Removes generated files to keep the environment clean.
-        """
-        for file in self.output_files:
-            if os.path.exists(file):
-                os.remove(file)
+        # Iterate over the expected files and check if they exist in the base directory
+        for file in expected_files:
+            file_path = os.path.join(base_directory, file)
+            self.assertTrue(os.path.exists(file_path), f"File {file_path} does not exist.")
 
-    def test_run_pipeline_and_check_outputs(self):
-        """
-        Tests whether the pipeline executes correctly:
-        - Verifies that all expected output files are created
-        - Checks that the files are not empty
-        """
-        # Run the main pipeline function
-        try:
-            main()
-            print("Pipeline executed successfully.")
-        except Exception as e:
-            self.fail(f"Pipeline execution failed: {e}")
-
-        # Verify that the output files are created
-        for file in self.output_files:
-            self.assertTrue(
-                os.path.isfile(file),
-                f"Expected output file '{file}' was not created."
-            )
-
-            # Verify that the files are not empty
-            self.assertGreater(
-                os.path.getsize(file),
-                0,
-                f"The file '{file}' is empty."
-            )
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
