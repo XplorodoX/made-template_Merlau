@@ -16,7 +16,7 @@ class TestOutputFiles(unittest.TestCase):
         Define the base directory relative to the current script's location
         for use in all tests.
         """
-        self.base_directory = os.path.dirname(os.path.abspath(__file__))
+        self.base_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
     def test_output_files_exist(self):
         """
@@ -33,7 +33,7 @@ class TestOutputFiles(unittest.TestCase):
             "yearly_summarynorden.csv",
         ]
 
-        # Verify existence of each file
+        # Verify existence of each file in the data directory
         for file in expected_files:
             file_path = os.path.join(self.base_directory, file)
             with self.subTest(file=file):

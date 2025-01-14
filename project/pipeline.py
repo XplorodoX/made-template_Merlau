@@ -445,8 +445,10 @@ def main():
     # such as reshaping or cleaning it, and returns the transformed dataset as temperature_melted.
     temperature_melted = transform_temperature_data(temperature_data)
 
-    # Ensure the script saves files in the same directory as the script itself
-    script_directory = os.path.dirname(os.path.abspath(__file__))
+    save_directory = os.path.join(os.path.dirname(__file__), "data")
+
+    # Sicherstellen, dass das Speicherverzeichnis existiert
+    os.makedirs(save_directory, exist_ok=True)
 
     # Define a list of countries that are part of the North American region.
     north_america_countries = [
@@ -522,23 +524,22 @@ def main():
     # ignoring the original index values to create a new continuous index.
     df_combined = pd.concat([yearly_summarynorden, yearly_summarysouth], ignore_index=True)
 
+    # Generate plots and save them in the relative directory
     plot_temperature_by_region_large_graph(
         combined_filtered_data_na, north_america_countries, "Nordamerika",
         sueden, south_america_countries, "Südamerika",
-        os.path.join(script_directory, "temperature_large_graph.png")  # Speichert im selben Ordner wie das Skript
+        os.path.join(save_directory, "temperature_large_graph.png")
     )
 
     plot_emissions_by_country_large_graph(
         combined_filtered_data_na, north_america_countries, "Nordamerika",
         sueden, south_america_countries, "Südamerika",
-        os.path.join(script_directory, "co2_emissions_large_graph.png")  # Speichert im selben Ordner wie das Skript
+        os.path.join(save_directory, "co2_emissions_large_graph.png")
     )
 
-    # Generate a plot comparing temperature and emissions, saving the output to a file named "temperature_vs_emissions.png".
     plot_temperature_vs_emissions(
-        df_combined,
-        os.path.join(script_directory, "temperature_vs_emissions.png")  # Speichert im selben Ordner wie das Skript
-    )   
+        df_combined, os.path.join(save_directory, "temperature_vs_emissions.png")
+    ) 
 
     # Calculate p-values for statistical significance testing
     p_values_df = calculate_p_values(df_combined)
@@ -547,16 +548,16 @@ def main():
     print("\nP-values and regression results:")
     print(p_values_df)
 
-    # Speichert die Temperaturgrafik mit Trendlinien
     plot_temperature_with_trendlines(
         df_combined, p_values_df,
-        os.path.join(script_directory, "temperature_trendlines.png")  # Speichert im selben Ordner wie das Skript
+        os.path.join(save_directory, "temperature_trendlines.png")
     )
 
-    # Save the datasets as CSV files in the script's directory
-    df_combined.to_csv(os.path.join(script_directory, 'df_combined.csv'), index=False)
-    yearly_summarysouth.to_csv(os.path.join(script_directory, 'yearly_summarysouth.csv'), index=False)
-    yearly_summarynorden.to_csv(os.path.join(script_directory, 'yearly_summarynorden.csv'), index=False)
+    # Save datasets in the relative directory
+    df_combined.to_csv(os.path.join(save_directory, 'df_combined.csv'), index=False)
+    yearly_summarysouth.to_csv(os.path.join(save_directory, 'yearly_summarysouth.csv'), index=False)
+    yearly_summarynorden.to_csv(os.path.join(save_directory, 'yearly_summarynorden.csv'), index=False)
+
 
 if __name__ == "__main__":
     main()
