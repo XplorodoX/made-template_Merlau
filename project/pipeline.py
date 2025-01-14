@@ -301,10 +301,6 @@ def plot_temperature_by_region_large_graph(temp_data_na, countries_na, region_na
     fig.write_image(output_file)
     print(f"The graph has been successfully saved as '{output_file}'.")
 
-import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
-
 def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=600, polynomial_degree=3):
     """
     Creates a scatter plot showing temperature as a function of total emissions, 
