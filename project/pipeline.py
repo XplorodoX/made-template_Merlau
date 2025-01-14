@@ -225,8 +225,8 @@ def plot_emissions_by_country_large_graph(emissions_data_na, countries_na, regio
         legend_title_text="Countries",
         xaxis_title="Year",
         yaxis_title="CO2 Emissions (Million Tons)",
-        height=800,  # Height of the graph in pixels
-        width=1600   # Width of the graph in pixels
+        height=600,  # Height of the graph in pixels
+        width=1000   # Width of the graph in pixels
     )
 
     # Save the graph as an image
@@ -293,15 +293,15 @@ def plot_temperature_by_region_large_graph(temp_data_na, countries_na, region_na
         legend_title_text="Countries",
         xaxis=dict(title="Year"),
         yaxis=dict(title="Temperature (°C)"),
-        height=800,  # Set the height of the graph
-        width=1600   # Set the width of the graph
+        height=600,  # Set the height of the graph
+        width=1000   # Set the width of the graph
     )
 
     # Save the graph as an image
     fig.write_image(output_file)
     print(f"The graph has been successfully saved as '{output_file}'.")
 
-def plot_temperature_vs_emissions(df_combined, output_file, width=1600, height=800):
+def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=600):
     """
     Creates a scatter plot showing temperature as a function of total emissions, 
     including a regression line.
@@ -528,17 +528,17 @@ def main():
     plot_temperature_by_region_large_graph(
         combined_filtered_data_na, north_america_countries, "Nordamerika",
         sueden, south_america_countries, "Südamerika",
-        os.path.join(save_directory, "temperature_large_graph.png")
+        os.path.join(save_directory, "temperature_large_graph.pdf")
     )
 
     plot_emissions_by_country_large_graph(
         combined_filtered_data_na, north_america_countries, "Nordamerika",
         sueden, south_america_countries, "Südamerika",
-        os.path.join(save_directory, "co2_emissions_large_graph.png")
+        os.path.join(save_directory, "co2_emissions_large_graph.pdf")
     )
 
     plot_temperature_vs_emissions(
-        df_combined, os.path.join(save_directory, "temperature_vs_emissions.png")
+        df_combined, os.path.join(save_directory, "temperature_vs_emissions.pdf")
     ) 
 
     # Calculate p-values for statistical significance testing
@@ -550,14 +550,13 @@ def main():
 
     plot_temperature_with_trendlines(
         df_combined, p_values_df,
-        os.path.join(save_directory, "temperature_trendlines.png")
+        os.path.join(save_directory, "temperature_trendlines.pdf")
     )
 
     # Save datasets in the relative directory
     df_combined.to_csv(os.path.join(save_directory, 'df_combined.csv'), index=False)
     yearly_summarysouth.to_csv(os.path.join(save_directory, 'yearly_summarysouth.csv'), index=False)
     yearly_summarynorden.to_csv(os.path.join(save_directory, 'yearly_summarynorden.csv'), index=False)
-
 
 if __name__ == "__main__":
     main()

@@ -24,10 +24,10 @@ class TestOutputFiles(unittest.TestCase):
         """
         # List of expected output files
         expected_files = [
-            "temperature_large_graph.png",
-            "co2_emissions_large_graph.png",
-            "temperature_vs_emissions.png",
-            "temperature_trendlines.png",
+            "temperature_large_graph.pdf",
+            "co2_emissions_large_graph.pdf",
+            "temperature_vs_emissions.pdf",
+            "temperature_trendlines.pdf",
             "df_combined.csv",
             "yearly_summarysouth.csv",
             "yearly_summarynorden.csv",
