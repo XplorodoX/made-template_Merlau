@@ -301,10 +301,14 @@ def plot_temperature_by_region_large_graph(temp_data_na, countries_na, region_na
     fig.write_image(output_file)
     print(f"The graph has been successfully saved as '{output_file}'.")
 
-def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=600):
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+
+def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=600, polynomial_degree=3):
     """
     Creates a scatter plot showing temperature as a function of total emissions, 
-    including a regression line.
+    including a polynomial regression line.
 
     Parameters:
         df_combined (DataFrame): A DataFrame containing columns "emissions_total", 
@@ -312,27 +316,47 @@ def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=6
         output_file (str): File path to save the image.
         width (int): Width of the saved image in pixels (default is 1920).
         height (int): Height of the saved image in pixels (default is 1080).
+        polynomial_degree (int): Degree of the polynomial for regression (default is 3).
     """
+
     # Extract x (emissions) and y (temperature) data
-    x = df_combined["emissions_total"]
-    y = df_combined["Temperature"]
+    x = df_combined["emissions_total"].values
+    y = df_combined["Temperature"].values
 
-    # Compute the linear regression (trendline)
-    coeffs = np.polyfit(x, y, deg=1)  # Linear regression coefficients
-    trendline = np.polyval(coeffs, x)
+    # Sort x und y gemeinsam, damit die Trendlinie nachher "glatt" verläuft
+    # (Sortierung basierend auf den x-Werten)
+    sort_idx = np.argsort(x)
+    x_sorted = x[sort_idx]
+    y_sorted = y[sort_idx]
 
-    # Create scatter plot
+    # Compute the polynomial regression
+    coeffs = np.polyfit(x_sorted, y_sorted, deg=polynomial_degree)
+    # Berechne für die sortierten x-Werte die entsprechenden y-Werte der Regressionskurve
+    trendline = np.polyval(coeffs, x_sorted)
+
+    # Create scatter plot (Punktwolke)
     fig = px.scatter(
         df_combined,
         x="emissions_total",
         y="Temperature",
         color="Region",  # Group data points by region
-        title="Temperature vs. CO2 Emissions",
+        title="Temperature vs. CO2 Emissions (Polynom-Regressionsgrad = {})".format(polynomial_degree),
         labels={
             "emissions_total": "CO2 Emissions (Million Tons)",
             "Temperature": "Temperature (°C)"
         },
         hover_data=["Year"]  # Display additional information on hover
+    )
+
+    # Add the polynomial regression line
+    fig.add_trace(
+        go.Scatter(
+            x=x_sorted,
+            y=trendline,
+            mode='lines',
+            name='Polynomial Regression (Degree={})'.format(polynomial_degree),
+            line=dict(color='red', width=2)
+        )
     )
 
     # Save the graph as an image with specified dimensions
