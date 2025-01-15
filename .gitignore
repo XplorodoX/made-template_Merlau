@@ -22,5 +22,6 @@ project/country_extract.py
 *.tex
 */pycache/*
 /project/tex/*
-*gitkeep
+*.gitkeep
+*.gitnore
 /project/__pycache__/*
