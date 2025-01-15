@@ -25,3 +25,6 @@ project/country_extract.py
 *.log
 *.out
 *.gz
+*.tex
+*/pycache/*
+/project/tex/*
