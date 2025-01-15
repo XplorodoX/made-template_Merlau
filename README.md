@@ -118,8 +118,11 @@ python analysis.py
 
 ### License
 
-This project is licensed under the Creative Commons BY License.
-Data used in this project are sourced from Our World in Data.
+This project is licensed under the MIT License. You are free to use, modify, and distribute this software in accordance with the terms of the license.
+
+The datasets used in this project are sourced from Our World in Data and are licensed under the Creative Commons BY license. Please ensure proper attribution when using these datasets in your own work.
+
+For more details, see the LICENSE file included in the repository.
 
 ### Contact
 
