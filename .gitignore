@@ -6,19 +6,13 @@ made-template_Merlau.code-workspace
 exercises/trees.sqlite
 *.sqlite
 /project/data/*
-
 /project/main.ipynb
-
 *.csv
-
 project/project/*
 exercises/example.jv
 project/main.py
-
 exercise4.jv
-
 project/country_extract.py
-
 *.png
 *.ipynb
 *.aux
@@ -28,4 +22,5 @@ project/country_extract.py
 *.tex
 */pycache/*
 /project/tex/*
+*gitkeep
 /project/__pycache__/*
