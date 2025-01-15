@@ -28,3 +28,4 @@ project/country_extract.py
 *.tex
 */pycache/*
 /project/tex/*
+/project/__pycache__/*
