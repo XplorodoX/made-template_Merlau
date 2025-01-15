@@ -6,6 +6,8 @@ import plotly.express as px
 from scipy.stats import linregress
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from scipy.stats import pearsonr
+from scipy.stats import linregress
 
 # Disable SSL certificate verification (useful if there are SSL issues when fetching data from URLs).
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -301,10 +303,10 @@ def plot_temperature_by_region_large_graph(temp_data_na, countries_na, region_na
     fig.write_image(output_file)
     print(f"The graph has been successfully saved as '{output_file}'.")
 
-def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=600, polynomial_degree=3):
+def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=600):
     """
-    Creates a scatter plot showing temperature as a function of total emissions, 
-    including a polynomial regression line.
+    Creates a scatter plot showing temperature as a function of total emissions,
+    including the Pearson correlation line.
 
     Parameters:
         df_combined (DataFrame): A DataFrame containing columns "emissions_total", 
@@ -312,31 +314,27 @@ def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=6
         output_file (str): File path to save the image.
         width (int): Width of the saved image in pixels (default is 1920).
         height (int): Height of the saved image in pixels (default is 1080).
-        polynomial_degree (int): Degree of the polynomial for regression (default is 3).
     """
 
     # Extract x (emissions) and y (temperature) data
     x = df_combined["emissions_total"].values
     y = df_combined["Temperature"].values
 
-    # Sort x und y gemeinsam, damit die Trendlinie nachher "glatt" verläuft
-    # (Sortierung basierend auf den x-Werten)
-    sort_idx = np.argsort(x)
-    x_sorted = x[sort_idx]
-    y_sorted = y[sort_idx]
+    # Perform linear regression for the line of best fit
+    slope, intercept, r_value, p_value, std_err = linregress(x, y)
 
-    # Compute the polynomial regression
-    coeffs = np.polyfit(x_sorted, y_sorted, deg=polynomial_degree)
-    # Berechne für die sortierten x-Werte die entsprechenden y-Werte der Regressionskurve
-    trendline = np.polyval(coeffs, x_sorted)
+    # Calculate the line of best fit
+    x_fit = np.linspace(x.min(), x.max(), 100)  # Generate x values for the line
+    y_fit = slope * x_fit + intercept           # Compute corresponding y values
 
-    # Create scatter plot (Punktwolke)
+    # Create scatter plot
     fig = px.scatter(
         df_combined,
         x="emissions_total",
         y="Temperature",
         color="Region",  # Group data points by region
-        title="Temperature vs. CO2 Emissions (Polynom-Regressionsgrad = {})".format(polynomial_degree),
+        title="Temperature vs. CO2 Emissions<br>"
+              f"Pearson Correlation: r = {r_value:.2f}, p = {p_value:.2e}",
         labels={
             "emissions_total": "CO2 Emissions (Million Tons)",
             "Temperature": "Temperature (°C)"
@@ -344,14 +342,14 @@ def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=6
         hover_data=["Year"]  # Display additional information on hover
     )
 
-    # Add the polynomial regression line
+    # Add the line of best fit
     fig.add_trace(
         go.Scatter(
-            x=x_sorted,
-            y=trendline,
+            x=x_fit,
+            y=y_fit,
             mode='lines',
-            name='Polynomial Regression (Degree={})'.format(polynomial_degree),
-            line=dict(color='red', width=2)
+            name='Best Fit Line',
+            line=dict(color='red', width=2, dash='dash')  # Dashed red line
         )
     )
 
@@ -426,8 +424,6 @@ def calculate_p_values(df_combined):
     Returns:
         DataFrame: A new DataFrame with linear regression results, including slope, intercept, R-squared, and p-value for each region.
     """
-    import pandas as pd
-    from scipy.stats import linregress
 
     # Initialize a list to store the regression results for each region
     results = []
@@ -453,7 +449,6 @@ def calculate_p_values(df_combined):
 
     # Convert the results list into a DataFrame for easier analysis and visualization
     return pd.DataFrame(results)
-
 
 def main():
     # Fetch the emissions and temperature datasets from the source.
@@ -535,10 +530,10 @@ def main():
     }).reset_index()
 
     # Add a new column "Region" to the yearly summary for North America and set its value to "Nordamerika".
-    yearly_summarynorden["Region"] = "Nordamerika"
+    yearly_summarynorden["Region"] = "North amerika"
 
     # Add a new column "Region" to the yearly summary for South America and set its value to "Südamerika".
-    yearly_summarysouth["Region"] = "Südamerika"
+    yearly_summarysouth["Region"] = "South amerika"
 
     # Combine the dataframes for North America and South America into one, 
     # ignoring the original index values to create a new continuous index.
