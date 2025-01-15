@@ -333,8 +333,7 @@ def plot_temperature_vs_emissions(df_combined, output_file, width=1000, height=6
         x="emissions_total",
         y="Temperature",
         color="Region",  # Group data points by region
-        title="Temperature vs. CO2 Emissions<br>"
-              f"Pearson Correlation: r = {r_value:.2f}, p = {p_value:.2e}",
+        title="Temperature vs. CO2 Emissions<br>",
         labels={
             "emissions_total": "CO2 Emissions (Million Tons)",
             "Temperature": "Temperature (°C)"
